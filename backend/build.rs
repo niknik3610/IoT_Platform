@@ -1,5 +1,5 @@
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     //All .proto files that need to be compiled should look like this
-    // tonic_build::compile_protos("proto/helloworld.proto")?;
+    tonic_build::compile_protos("proto/RegistrationService.proto")?;
     Ok(())
 }
