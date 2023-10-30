@@ -1,0 +1,8 @@
+syntax = "proto3";
+package iot.types;
+
+enum Capabilities {
+    UNKNOWN = 0;
+    TURN_ON = 1;
+    TURN_OFF = 2;
+}

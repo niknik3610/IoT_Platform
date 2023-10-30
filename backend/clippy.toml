@@ -1,0 +1,2 @@
+#using fxhash for faster hashing
+disallowed-types = ["std::collections::HashMap", "std::collections::HashSet"]
