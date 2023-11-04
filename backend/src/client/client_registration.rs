@@ -1,7 +1,7 @@
 use crate::client_registration::client_registration_service::registration_service_client::RegistrationServiceClient;
 use std::time::Duration;
 
-use rsa::{RsaPublicKey};
+use rsa::RsaPublicKey;
 use tokio::time::sleep;
 
 use crate::SERVER_IP;

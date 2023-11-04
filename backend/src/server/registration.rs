@@ -39,14 +39,16 @@ impl RegistrationService for RegistrationHandler {
         let private_key;
         {
             let mut rng = rand::thread_rng();
-            private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap(); //TODO
+            private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap();
+            //TODO
         }
 
         let stringified_public_key = serde_json::to_string(&private_key.to_public_key()).unwrap();
-        
+
         let capabilites = request.capabilities;
 
-        let device_public_key: rsa::RsaPublicKey = serde_json::from_str(&request.public_key).unwrap(); 
+        let device_public_key: rsa::RsaPublicKey =
+            serde_json::from_str(&request.public_key).unwrap();
 
         let csr = client_id.to_string() + &request.public_key;
         let signing_key = rsa::pkcs1v15::SigningKey::<rsa::sha2::Sha256>::new(private_key.clone()); //TODO: move out of here
@@ -72,7 +74,10 @@ impl RegistrationService for RegistrationHandler {
 fn generate_new_id() -> Uuid {
     Uuid::new_v4()
 }
-async fn generate_new_certificate(server_signing_key: &rsa::pkcs1v15::SigningKey<rsa::sha2::Sha256>, csr: String) -> String {
+async fn generate_new_certificate(
+    server_signing_key: &rsa::pkcs1v15::SigningKey<rsa::sha2::Sha256>,
+    csr: String,
+) -> String {
     use rsa::signature::Signer;
 
     let signed_rsa: String = server_signing_key.sign(&csr[..].as_bytes()).to_string();
