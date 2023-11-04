@@ -6,10 +6,13 @@ service RegistrationService {
 };
 
 message RegistrationRequest {
-    repeated Capability capabilities = 1;
+    string public_key = 1;
+    repeated Capability capabilities = 2;
 }
 message RegistrationResponse {
-    string client_id = 1;
+    string public_key = 1;
+    string client_id = 2;
+    string certificate = 3;
 }
 
 message Capability {

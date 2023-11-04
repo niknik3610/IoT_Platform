@@ -11,6 +11,7 @@ pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub type RPCFunctionResult<T> = Result<tonic::Response<T>, tonic::Status>;
 pub type ConnectedDevicesType = FxHashMap<String, device::Device>;
 
+//TODO add either documentation of required OpenSSL version or make logic to check for it
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let addr = "[::1]:50051".parse()?;
