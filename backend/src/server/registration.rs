@@ -1,4 +1,5 @@
 use crate::certificate_signing::CertificateSigningService;
+use crate::types::types;
 use crate::{
     certificate_signing, device, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable,
 };

@@ -3,6 +3,7 @@ package iot.types;
 
 enum Capabilities {
     UNKNOWN = 0;
-    TURN_ON = 1;
-    TURN_OFF = 2;
+    NONE = 1;
+    TURN_ON = 2;
+    TURN_OFF = 3;
 }

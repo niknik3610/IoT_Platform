@@ -1,12 +1,15 @@
+use std::sync::Arc;
+
 use uuid::Uuid;
 
-use crate::registration::registration_service::Capability;
+use crate::{registration::registration_service::Capability, ThreadSafeMutable};
 
 pub struct Device {
     pub uuid: Uuid,
     pub stringified_uuid: String,
     pub capabilities: Vec<Capability>,
     pub device_public_key: rsa::RsaPublicKey,
+    pub updates: ThreadSafeMutable<Vec<i32>>,
 }
 impl Device {
     pub fn new(
@@ -19,6 +22,7 @@ impl Device {
             stringified_uuid: uuid.to_string(),
             capabilities,
             device_public_key,
+            updates: Arc::new(tokio::sync::Mutex::new(Vec::new())),
         };
     }
 }

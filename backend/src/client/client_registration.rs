@@ -1,16 +1,13 @@
-use crate::{
-    client_connection::ServerConnection,
-    client_registration::client_registration_service::registration_service_client::RegistrationServiceClient,
-};
-use std::time::Duration;
-
 use rsa::RsaPublicKey;
+use std::time::Duration;
 use tokio::time::sleep;
 
+use self::client_registration_service::{Capability, RegistrationRequest};
 use crate::client_connection;
+use crate::client_registration::client_registration_service::registration_service_client::RegistrationServiceClient;
+use crate::client_types::types;
 use crate::SERVER_IP;
-
-use self::client_registration_service::{Capabilities, Capability, RegistrationRequest};
+use types::Capabilities;
 
 mod client_registration_service {
     tonic::include_proto!("iot.registration");

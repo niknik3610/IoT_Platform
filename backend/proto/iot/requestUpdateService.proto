@@ -1,0 +1,24 @@
+syntax = "proto3";
+package iot.polling;
+import "types.proto";
+
+service RequestUpdateService {
+    rpc PollForUpdate(PollRequest) returns (PollResponse);
+};
+
+message PollRequest {
+    string certificate = 1;
+    string uuid = 2;
+};
+
+message PollResponse {
+    PollingOption update = 1;
+    repeated iot.types.Capabilities capability = 2;
+};
+
+enum PollingOption {
+    UNKNOWN = 0;
+    NONE = 1;
+    SOME = 2;
+    DEVICE_NOT_FOUND = 3;
+}

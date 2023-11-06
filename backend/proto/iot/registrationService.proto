@@ -1,5 +1,6 @@
 syntax = "proto3";
 package iot.registration;
+import "types.proto";
 
 service RegistrationService {
     rpc Register(RegistrationRequest) returns (RegistrationResponse);
@@ -17,10 +18,5 @@ message RegistrationResponse {
 
 message Capability {
     bool available = 1;
-    Capabilities capability = 2;
-}
-enum Capabilities {
-    UNKNOWN = 0;
-    TURN_ON = 1;
-    TURN_OFF = 2;
+    iot.types.Capabilities capability = 2;
 }

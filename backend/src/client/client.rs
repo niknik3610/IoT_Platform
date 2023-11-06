@@ -1,5 +1,6 @@
 pub mod client_connection;
 pub mod client_registration;
+pub mod client_types;
 
 pub const SERVER_IP: &str = "http://[::1]:50051";
 const RSA_KEY_SIZE: usize = 2048;
