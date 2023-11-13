@@ -2,15 +2,18 @@ use std::sync::Arc;
 
 use fxhash::FxHashMap;
 use polling::polling_service::request_update_service_server;
-use registration::{registration_service::registration_service_server, frontend_registration_service::frontend_registration_service_server};
+use registration::{
+    frontend_registration_service::frontend_registration_service_server,
+    registration_service::registration_service_server,
+};
 use tonic::transport::Server;
 
 pub mod certificate_signing;
 pub mod device;
+pub mod frontend_clients;
 pub mod polling;
 mod registration;
 pub mod types;
-pub mod frontend_clients;
 
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub type RPCFunctionResult<T> = Result<tonic::Response<T>, tonic::Status>;
@@ -45,7 +48,10 @@ async fn main() -> anyhow::Result<()> {
         connected_device_uuids.clone(),
     );
     let polling_service = polling::PollingHandler::new(connected_devices.clone());
-    let frontend_registration_service = registration::FrontendRegistrationHandler::new(connected_devices.clone(), connected_device_uuids.clone());
+    let frontend_registration_service = registration::FrontendRegistrationHandler::new(
+        connected_devices.clone(),
+        connected_device_uuids.clone(),
+    );
 
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
@@ -55,7 +61,9 @@ async fn main() -> anyhow::Result<()> {
             request_update_service_server::RequestUpdateServiceServer::new(polling_service),
         )
         .add_service(
-            frontend_registration_service_server::FrontendRegistrationServiceServer::new(frontend_registration_service),
+            frontend_registration_service_server::FrontendRegistrationServiceServer::new(
+                frontend_registration_service,
+            ),
         )
         .serve(addr)
         .await?;

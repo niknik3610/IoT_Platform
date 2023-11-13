@@ -1,13 +1,14 @@
-use std::sync::Arc;
 use fxhash::FxHashMap;
 use rsa::RsaPublicKey;
+use std::sync::Arc;
 use tonic::async_trait;
 use uuid::Uuid;
 
 use crate::certificate_signing::CertificateSigningService;
 use crate::types::types;
 use crate::{
-    certificate_signing, device, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable, frontend_clients,
+    certificate_signing, device, frontend_clients, ConnectedDevicesType, RPCFunctionResult,
+    ThreadSafeMutable,
 };
 
 use self::frontend_registration_service::frontend_registration_service_server::FrontendRegistrationService;
@@ -103,15 +104,17 @@ pub struct FrontendRegistrationHandler {
     connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
 }
 impl FrontendRegistrationHandler {
-    pub fn new(connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
-               connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
-               ) -> Self {
-        let connected_frontends = Arc::new(tokio::sync::Mutex::new(ConnectedFrontendsType::default()));
+    pub fn new(
+        connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+        connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
+    ) -> Self {
+        let connected_frontends =
+            Arc::new(tokio::sync::Mutex::new(ConnectedFrontendsType::default()));
         return Self {
             connected_devices,
             connected_frontends,
             connected_devices_uuids,
-        }
+        };
     }
 }
 #[async_trait]
@@ -135,7 +138,7 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
     }
     async fn get_connected_devices(
         &self,
-        request: tonic::Request<self::frontend_registration_service::ConnectedDevicesRequest>
+        request: tonic::Request<self::frontend_registration_service::ConnectedDevicesRequest>,
     ) -> RPCFunctionResult<self::frontend_registration_service::ConnectedDevicesResponse> {
         use self::frontend_registration_service::Device;
         let mut connected_devices_uuids_clone = Vec::new();
@@ -146,14 +149,19 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
         async {
             let connected_devices_uuids = self.connected_devices_uuids.lock().await;
             connected_devices_uuids_clone = connected_devices_uuids.clone();
-        }.await;
+        }
+        .await;
 
         async {
             let connected_devices = self.connected_devices.lock().await;
             connected_devices_uuids_clone.iter().for_each(|device_id| {
                 let device = connected_devices.get(device_id);
                 if let Some(device) = device {
-                    let capabilities_i32 = device.capabilities.iter().map(|capability| capability.capability as i32).collect();
+                    let capabilities_i32 = device
+                        .capabilities
+                        .iter()
+                        .map(|capability| capability.capability as i32)
+                        .collect();
                     let new_device = Device {
                         device_name: String::from("todo"),
                         device_uuid: device.stringified_uuid.clone(),
@@ -162,11 +170,11 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
                     toReturn.push(new_device);
                 }
             });
-        }.await;
+        }
+        .await;
 
         return Ok(tonic::Response::new(
-                self::frontend_registration_service::ConnectedDevicesResponse {
-                    devices: toReturn,
-        }));
+            self::frontend_registration_service::ConnectedDevicesResponse { devices: toReturn },
+        ));
     }
 }
