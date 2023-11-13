@@ -14,10 +14,8 @@ pub struct PollingHandler {
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
 }
 impl PollingHandler {
-    pub fn new(connected_devices: ThreadSafeMutable<ConnectedDevicesType>) -> Self{
-        return PollingHandler {
-            connected_devices
-        };
+    pub fn new(connected_devices: ThreadSafeMutable<ConnectedDevicesType>) -> Self {
+        return PollingHandler { connected_devices };
     }
 }
 #[async_trait]

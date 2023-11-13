@@ -36,3 +36,7 @@ tonic-build = "0.10"
 [[bin]] 
     name = "client"
     path = "src/client/client.rs"
+
+[[bin]]
+    name = "frontend"
+    path = "src/frontend/frontend.rs"

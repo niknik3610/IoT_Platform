@@ -1,0 +1,30 @@
+syntax = "proto3";
+package frontend.registration;
+import "frontend_types.proto";
+
+service FrontendRegistrationService {
+    rpc Register(RegistrationRequest) returns (RegistrationResponse);
+    rpc GetConnectedDevices(ConnectedDevicesRequest) returns (ConnectedDevicesResponse);
+};
+
+message RegistrationRequest {
+    string device_name = 1;
+}
+
+message RegistrationResponse {
+    string client_id = 2;
+}
+
+message ConnectedDevicesRequest {
+    string client_id = 1;
+}
+
+message ConnectedDevicesResponse {
+    repeated Device devices = 1;
+}
+
+message Device {
+    string device_name = 1;
+    string device_uuid = 2;
+    repeated types.Capabilities capabilities = 3;
+}

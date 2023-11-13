@@ -13,7 +13,7 @@ async fn main() -> anyhow::Result<()> {
         private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap(); //TODO
     }
 
-    let client_connection_details =
+    let _client_connection_details =
         client_registration::repeated_register_self(&private_key.to_public_key()).await;
     Ok(())
 }

@@ -4,6 +4,7 @@ use uuid::Uuid;
 
 use crate::{registration::registration_service::Capability, ThreadSafeMutable};
 
+#[derive(Clone)]
 pub struct Device {
     pub uuid: Uuid,
     pub stringified_uuid: String,
