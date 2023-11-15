@@ -1,10 +1,13 @@
 use frontend_registration::registration_service::Device;
 use tonic::transport::Channel;
 
-use crate::{frontend_registration::registration_service::{
-    frontend_registration_service_client::FrontendRegistrationServiceClient,
-    ConnectedDevicesRequest, RegistrationRequest,
-}, frontend_types::types::Capabilities};
+use crate::{
+    frontend_registration::registration_service::{
+        frontend_registration_service_client::FrontendRegistrationServiceClient,
+        ConnectedDevicesRequest, RegistrationRequest,
+    },
+    frontend_types::types::Capabilities,
+};
 
 pub mod frontend_registration;
 pub mod frontend_types;
@@ -14,7 +17,7 @@ pub const SERVER_IP: &str = "http://[::1]:50051"; //todo: perhaps change this
 async fn main() -> anyhow::Result<()> {
     println!("Connecting...");
     let mut client = FrontendRegistrationServiceClient::connect(SERVER_IP).await?;
-    
+
     let response = client
         .register(RegistrationRequest {
             device_name: String::from("Niks System"),
@@ -30,10 +33,11 @@ async fn main() -> anyhow::Result<()> {
 
     let mut input_buffer = String::new();
     loop {
-        println!("What would you like to do?
-                 1. Control a device
-                 2. Quit
-                 ");
+        println!(
+            "What would you like to do?
+1. Control a device
+2. Quit"
+        );
         input_buffer.clear();
         {
             let stdin = std::io::stdin();
@@ -63,7 +67,10 @@ async fn main() -> anyhow::Result<()> {
     return Ok(());
 }
 
-async fn get_connected_devices(device_id: &String, client: &mut FrontendRegistrationServiceClient<Channel>) -> anyhow::Result<Vec<Device>> {
+async fn get_connected_devices(
+    device_id: &String,
+    client: &mut FrontendRegistrationServiceClient<Channel>,
+) -> anyhow::Result<Vec<Device>> {
     //todo: move this out of registration, add a struct for the ConnectedDevicesClient with methods
     let connected_devices = client
         .get_connected_devices(ConnectedDevicesRequest {
@@ -76,16 +83,22 @@ async fn get_connected_devices(device_id: &String, client: &mut FrontendRegistra
     Ok(connected_devices)
 }
 
-async fn control_device(device_id: &String, client: &mut FrontendRegistrationServiceClient<Channel>) {
+async fn control_device(
+    device_id: &String,
+    client: &mut FrontendRegistrationServiceClient<Channel>,
+) {
     let connected_devices = get_connected_devices(device_id, client);
     println!("Fetching available devices...");
     let mut input_buffer = String::new();
 
     let connected_devices = connected_devices.await.unwrap(); //todo
-    connected_devices.iter().enumerate().for_each(|(count, device)|{
-        //todo: pretty print capabillities
-        println!("{count}: {}", device.device_name);                                                                              
-    });
+    connected_devices
+        .iter()
+        .enumerate()
+        .for_each(|(count, device)| {
+            //todo: pretty print capabillities
+            println!("{count}: {}", device.device_name);
+        });
 
     println!("What device would you like to control?: ");
     {
@@ -102,14 +115,18 @@ async fn control_device(device_id: &String, client: &mut FrontendRegistrationSer
 
     let device_to_control = &connected_devices[choice];
     println!("Heres what you can do:");
-    device_to_control.capabilities.iter().enumerate().for_each(|(i, capabillity)|{
-        let capabillity = match Capabilities::try_from(*capabillity) {
-            Ok(r) => r,
-            Err(_e) => {
-                println!("There was an error processing this capabillity");
-                return;
-            }
-        };
-        println!("{}: {:?}", i, capabillity);
-    });
+    device_to_control
+        .capabilities
+        .iter()
+        .enumerate()
+        .for_each(|(i, capabillity)| {
+            let capabillity = match Capabilities::try_from(*capabillity) {
+                Ok(r) => r,
+                Err(_e) => {
+                    println!("There was an error processing this capabillity");
+                    return;
+                }
+            };
+            println!("{}: {:?}", i, capabillity);
+        });
 }
