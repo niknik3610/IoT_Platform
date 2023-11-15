@@ -144,7 +144,7 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
         let mut connected_devices_uuids_clone = Vec::new();
 
         //todo: add caching for this list
-        let mut toReturn = Vec::<Device>::new();
+        let mut to_return = Vec::<Device>::new();
 
         async {
             let connected_devices_uuids = self.connected_devices_uuids.lock().await;
@@ -167,14 +167,14 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
                         device_uuid: device.stringified_uuid.clone(),
                         capabilities: capabilities_i32,
                     };
-                    toReturn.push(new_device);
+                    to_return.push(new_device);
                 }
             });
         }
         .await;
 
         return Ok(tonic::Response::new(
-            self::frontend_registration_service::ConnectedDevicesResponse { devices: toReturn },
+            self::frontend_registration_service::ConnectedDevicesResponse { devices: to_return },
         ));
     }
 }
