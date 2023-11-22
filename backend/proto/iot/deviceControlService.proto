@@ -1,0 +1,15 @@
+syntax = "proto3";
+package iot.devicecontrol;
+import "types.proto";
+
+
+service DeviceControlService{
+    rpc ControlDevice(DeviceControlRequest) returns (DeviceControlResponse);
+};
+
+message DeviceControlRequest{
+    types.Capability capability = 2;
+}
+
+message DeviceControlResponse{
+}

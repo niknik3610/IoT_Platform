@@ -138,7 +138,7 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
     }
     async fn get_connected_devices(
         &self,
-        request: tonic::Request<self::frontend_registration_service::ConnectedDevicesRequest>,
+        _request: tonic::Request<self::frontend_registration_service::ConnectedDevicesRequest>,
     ) -> RPCFunctionResult<self::frontend_registration_service::ConnectedDevicesResponse> {
         use self::frontend_registration_service::Device;
         let mut connected_devices_uuids_clone = Vec::new();

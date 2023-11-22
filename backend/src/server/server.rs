@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use device_control_service::frontend_device_control::{frontend_device_control_service_server};
 use fxhash::FxHashMap;
 use polling::polling_service::request_update_service_server;
 use registration::{
@@ -10,6 +11,7 @@ use tonic::transport::Server;
 
 pub mod certificate_signing;
 pub mod device;
+pub mod device_control_service;
 pub mod frontend_clients;
 pub mod polling;
 mod registration;
@@ -25,9 +27,8 @@ const RSA_KEY_SIZE: usize = 2048;
 async fn main() -> anyhow::Result<()> {
     let addr = "[::1]:50051".parse()?;
 
-    let connected_devices: ThreadSafeMutable<ConnectedDevicesType> =
-        Arc::new(tokio::sync::Mutex::new(FxHashMap::default()));
-    let connected_device_uuids = Arc::new(tokio::sync::Mutex::new(Vec::new()));
+    let connected_devices: ThreadSafeMutable<ConnectedDevicesType> = Arc::default();
+    let connected_device_uuids: ThreadSafeMutable<Vec<String>> = Arc::default();
 
     let device_count = Arc::new(tokio::sync::Mutex::new(0));
 
@@ -47,11 +48,14 @@ async fn main() -> anyhow::Result<()> {
         private_key.to_public_key(),
         connected_device_uuids.clone(),
     );
-    let polling_service = polling::PollingHandler::new(connected_devices.clone());
+
+    let events = ThreadSafeMutable::default();
+    let polling_service = polling::PollingHandler::new(connected_devices.clone(), events.clone());
     let frontend_registration_service = registration::FrontendRegistrationHandler::new(
         connected_devices.clone(),
         connected_device_uuids.clone(),
     );
+    let device_control_service = device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
@@ -65,6 +69,9 @@ async fn main() -> anyhow::Result<()> {
                 frontend_registration_service,
             ),
         )
+        .add_service(
+            frontend_device_control_service_server::FrontendDeviceControlServiceServer::new(device_control_service)
+            )
         .serve(addr)
         .await?;
 

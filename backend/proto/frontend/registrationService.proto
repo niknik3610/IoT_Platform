@@ -26,5 +26,5 @@ message ConnectedDevicesResponse {
 message Device {
     string device_name = 1;
     string device_uuid = 2;
-    repeated types.Capabilities capabilities = 3;
+    repeated types.Capability capabilities = 3;
 }

@@ -12,8 +12,8 @@ message PollRequest {
 };
 
 message PollResponse {
-    PollingOption update = 1;
-    repeated iot.types.Capabilities capability = 2;
+    PollingOption hasUpdate = 1;
+    repeated Update updates = 2;
 };
 
 enum PollingOption {
@@ -21,4 +21,10 @@ enum PollingOption {
     NONE = 1;
     SOME = 2;
     DEVICE_NOT_FOUND = 3;
+}
+
+message Update {
+    iot.types.Capability capability = 1;
+    bool hasValue = 2;
+    int32 value = 3;
 }

@@ -8,7 +8,7 @@ service RegistrationService {
 
 message RegistrationRequest {
     string public_key = 1;
-    repeated Capability capabilities = 2;
+    repeated DeviceCapabilityStatus capabilities = 2;
 }
 message RegistrationResponse {
     string public_key = 1;
@@ -16,7 +16,7 @@ message RegistrationResponse {
     string certificate = 3;
 }
 
-message Capability {
+message DeviceCapabilityStatus {
     bool available = 1;
-    iot.types.Capabilities capability = 2;
+    iot.types.Capability capability = 2;
 }
