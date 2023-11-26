@@ -9,6 +9,7 @@ pub mod client_types;
 pub const SERVER_IP: &str = "http://[::1]:50051";
 const RSA_KEY_SIZE: usize = 2048;
 
+//todo: fix disconnect error, probably in polling
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let private_key;

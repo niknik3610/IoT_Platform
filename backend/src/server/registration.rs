@@ -55,8 +55,6 @@ impl RegistrationService for ClientRegistrationHandler {
         &self,
         request: tonic::Request<self::registration_service::RegistrationRequest>,
     ) -> RPCFunctionResult<self::registration_service::RegistrationResponse> {
-        let connected_devices = self.connected_devices.lock();
-        let connected_devices_uuids = self.connected_device_uuids.lock();
 
         let request = request.into_inner();
         let client_id: Uuid = generate_new_id();
@@ -78,12 +76,14 @@ impl RegistrationService for ClientRegistrationHandler {
         };
 
         {
+            let connected_devices_uuids = self.connected_device_uuids.lock();
             connected_devices_uuids
                 .await
                 .push(device.stringified_uuid.clone());
         }
 
         {
+            let connected_devices = self.connected_devices.lock();
             connected_devices
                 .await
                 .insert(device.stringified_uuid.clone(), device);

@@ -31,7 +31,6 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         &self,
         request: tonic::Request<frontend_device_control::DeviceControlRequest>,
     ) -> tonic::Result<tonic::Response<frontend_device_control::DeviceControlResponse>> {
-        let events = self.events.lock();
         let request = request.into_inner();
         let uuid = request.device_uuid;
         let capability_to_be_triggered = request.capability;
@@ -42,7 +41,7 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
             None,
         ); //todo
         {
-            let mut events = events.await;
+            let mut events = self.events.lock().await;
             let mut device_events = events.get_mut(&uuid);
             if let None = device_events {
                 events.insert(uuid.clone(), Vec::new());
