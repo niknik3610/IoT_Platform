@@ -55,7 +55,6 @@ impl RegistrationService for ClientRegistrationHandler {
         &self,
         request: tonic::Request<self::registration_service::RegistrationRequest>,
     ) -> RPCFunctionResult<self::registration_service::RegistrationResponse> {
-
         let request = request.into_inner();
         let client_id: Uuid = generate_new_id();
 

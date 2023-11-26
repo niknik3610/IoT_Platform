@@ -39,34 +39,48 @@ async fn main() -> anyhow::Result<()> {
     println!("Your Device id is: {device_id}");
 
     let mut input_buffer = String::new();
-    loop {
-        println!(
-            "What would you like to do?
-1. Control a device
-2. Quit"
-        );
-        input_buffer.clear();
-        {
-            let stdin = std::io::stdin();
-            stdin.read_line(&mut input_buffer).unwrap(); //todo
-        }
+    'main: loop {
+        'sub: loop {
+            println!(
+                "\nWhat would you like to do?\n{}\n{}",
+                "1. Control a device", "2. Quit"
+            );
 
-        input_buffer.pop();
-        let choice = match input_buffer.parse::<u32>() {
-            Ok(r) => r,
-            Err(e) => {
-                println!("Please enter a valid input");
-                eprintln!("{}", e);
-                continue;
+            input_buffer.clear();
+            {
+                let stdin = std::io::stdin();
+                match stdin.read_line(&mut input_buffer) {
+                    Ok(_) => {}
+                    Err(_e) => {
+                        println!("Please enter a valid input");
+                        continue 'sub;
+                    }
+                }
             }
-        };
 
-        match choice {
-            1 => control_device(&device_id, &mut registration_client, &mut control_client).await,
-            2 => break,
-            _ => {
-                println!("Please enter a valid input");
-                continue;
+            input_buffer.pop();
+            let choice = match input_buffer.parse::<u32>() {
+                Ok(r) => r,
+                Err(_e) => {
+                    println!("Please enter a valid input");
+                    continue 'sub;
+                }
+            };
+
+            match choice {
+                1 => {
+                    control_device(&device_id, &mut registration_client, &mut control_client)
+                        .await
+                        .unwrap_or_else(|e| {
+                            println!("Something went wrong during your request: ");
+                            eprintln!("{e}");
+                        });
+                }
+                2 => break 'main,
+                _ => {
+                    println!("Please enter a valid input");
+                    continue 'sub;
+                }
             }
         }
     }
@@ -94,12 +108,12 @@ async fn control_device(
     device_id: &String,
     registration_client: &mut FrontendRegistrationServiceClient<Channel>,
     control_client: &mut FrontendDeviceControlServiceClient<Channel>,
-) {
+) -> anyhow::Result<()> {
     let connected_devices = get_connected_devices(device_id, registration_client);
     println!("Fetching available devices...");
     let mut input_buffer = String::new();
 
-    let connected_devices = connected_devices.await.unwrap(); //todo
+    let connected_devices = connected_devices.await?;
     connected_devices
         .iter()
         .enumerate()
@@ -108,54 +122,85 @@ async fn control_device(
             println!("{count}: {}", device.device_name);
         });
 
-    println!("What device would you like to control?: ");
-    {
-        input_buffer.clear();
-        let stdin = std::io::stdin();
-        stdin.read_line(&mut input_buffer).unwrap();
-    }
-
-    input_buffer.pop();
-    let choice = input_buffer.parse::<usize>().unwrap();
-    if choice >= connected_devices.len() {
-        println!("Please input a valid choice!");
-        return;
-    }
-
-    let device_to_control = &connected_devices[choice];
-    println!("Heres what you can do:");
-    device_to_control
-        .capabilities
-        .iter()
-        .enumerate()
-        .for_each(|(i, capabillity)| {
-            let capabillity = match Capability::try_from(*capabillity) {
-                Ok(r) => r,
+    let device_to_control;
+    let chosen_capabillity;
+    loop {
+        println!("\nWhat device would you like to control?: ");
+        {
+            input_buffer.clear();
+            let stdin = std::io::stdin();
+            match stdin.read_line(&mut input_buffer) {
+                Ok(_) => {}
                 Err(_e) => {
-                    println!("There was an error processing this capabillity");
-                    return;
+                    println!("Please enter a valid input");
+                    continue;
                 }
-            };
-            println!("{}: {:?}", i, capabillity);
-        });
+            }
+        }
 
-    {
-        input_buffer.clear();
-        let stdin = std::io::stdin();
-        stdin.read_line(&mut input_buffer).unwrap();
+        input_buffer.pop();
+        let choice = match input_buffer.parse::<usize>() {
+            Ok(r) => r,
+            Err(_e) => {
+                println!("Please enter a valid input");
+                continue;
+            }
+        };
+        if choice >= connected_devices.len() {
+            println!("Please enter a valid input");
+            continue;
+        }
+        device_to_control = &connected_devices[choice];
+        break;
     }
 
-    input_buffer.pop();
-    let choice = input_buffer.parse::<usize>().unwrap();
+    loop {
+        println!("\nHeres what you can do:");
+        device_to_control
+            .capabilities
+            .iter()
+            .enumerate()
+            .for_each(|(i, capabillity)| {
+                let capabillity = match Capability::try_from(*capabillity) {
+                    Ok(r) => r,
+                    Err(_e) => {
+                        println!("There was an error processing this capabillity");
+                        return;
+                    }
+                };
+                println!("{}: {:?}", i, capabillity);
+            });
 
-    let chosen_capabillity = Capability::try_from(device_to_control.capabilities[choice]);
-    let chosen_capabillity = match chosen_capabillity {
-        Ok(r) => r,
-        Err(_e) => {
-            println!("Please input a valid choice!");
-            return;
+        {
+            input_buffer.clear();
+            let stdin = std::io::stdin();
+            match stdin.read_line(&mut input_buffer) {
+                Ok(_) => {}
+                Err(_e) => {
+                    println!("Please enter a valid input");
+                    continue;
+                }
+            }
         }
-    };
+
+        input_buffer.pop();
+        let choice = match input_buffer.parse::<usize>() {
+            Ok(r) => r,
+            Err(_e) => {
+                println!("Please enter a valid input");
+                continue;
+            }
+        };
+
+        chosen_capabillity = match Capability::try_from(device_to_control.capabilities[choice]) {
+            Ok(r) => r,
+            Err(_e) => {
+                println!("Please enter a valid input");
+                continue;
+            }
+        };
+        break;
+    }
 
     println!("Making request....");
     let result = control_client
@@ -172,4 +217,6 @@ async fn control_device(
             eprintln!("{}", e.to_string());
         }
     }
+
+    return Ok(());
 }
