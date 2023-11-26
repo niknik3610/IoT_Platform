@@ -51,7 +51,10 @@ pub struct PollingHandler {
     events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
 }
 impl PollingHandler {
-    pub fn new(connected_devices: ThreadSafeMutable<ConnectedDevicesType>, events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>) -> Self {
+    pub fn new(
+        connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+        events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
+    ) -> Self {
         return PollingHandler {
             connected_devices,
             events,

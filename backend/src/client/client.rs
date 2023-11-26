@@ -14,7 +14,7 @@ async fn main() -> anyhow::Result<()> {
     let private_key;
     {
         let mut rng = rand::thread_rng();
-        private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap(); //TODO
+        private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap();
     }
 
     let client_connection_details =

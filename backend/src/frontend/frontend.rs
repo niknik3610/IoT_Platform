@@ -16,7 +16,8 @@ use crate::{
 pub mod frontend_device_control;
 pub mod frontend_registration;
 pub mod frontend_types;
-pub const SERVER_IP: &str = "http://[::1]:50051"; //todo: perhaps change this
+//todo: switch this to automatically discover servers on the network
+pub const SERVER_IP: &str = "http://[::1]:50051";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

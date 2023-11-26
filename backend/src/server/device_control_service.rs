@@ -19,10 +19,8 @@ pub struct FrontendDeviceControlHandler {
     events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
 }
 impl FrontendDeviceControlHandler {
-    pub fn new(events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>) -> Self{
-        FrontendDeviceControlHandler {
-            events
-        }
+    pub fn new(events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>) -> Self {
+        FrontendDeviceControlHandler { events }
     }
 }
 #[async_trait]

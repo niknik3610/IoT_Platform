@@ -102,6 +102,9 @@ pub struct FrontendRegistrationHandler {
     connected_frontends: ThreadSafeMutable<ConnectedFrontendsType>,
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
     connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
+    cached_devices_for_frontends:
+        ThreadSafeMutable<Vec<self::frontend_registration_service::Device>>,
+    cache_valid: ThreadSafeMutable<bool>,
 }
 impl FrontendRegistrationHandler {
     pub fn new(
@@ -110,10 +113,14 @@ impl FrontendRegistrationHandler {
     ) -> Self {
         let connected_frontends =
             Arc::new(tokio::sync::Mutex::new(ConnectedFrontendsType::default()));
+        let cached_devices_for_frontends = ThreadSafeMutable::default();
+        let cache_valid = Arc::new(tokio::sync::Mutex::new(false));
         return Self {
             connected_devices,
             connected_frontends,
             connected_devices_uuids,
+            cached_devices_for_frontends,
+            cache_valid,
         };
     }
 }
@@ -123,12 +130,18 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
         &self,
         request: tonic::Request<self::frontend_registration_service::RegistrationRequest>,
     ) -> RPCFunctionResult<self::frontend_registration_service::RegistrationResponse> {
-        let connected_frontends = self.connected_frontends.lock();
         let id = generate_new_id().to_string();
         let request = request.into_inner();
 
         let new_device = frontend_clients::FrontendDevice::new(id.clone(), request.device_name);
-        connected_frontends.await.insert(id.clone(), new_device);
+        {
+            let connected_frontends = self.connected_frontends.lock();
+            connected_frontends.await.insert(id.clone(), new_device);
+        }
+        {
+            let mut cache_valid = self.cache_valid.lock().await;
+            *cache_valid = false;
+        }
 
         return Ok(tonic::Response::new(
             self::frontend_registration_service::RegistrationResponse {
@@ -136,14 +149,21 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
             },
         ));
     }
+    //todo: move this out of here
     async fn get_connected_devices(
         &self,
         _request: tonic::Request<self::frontend_registration_service::ConnectedDevicesRequest>,
     ) -> RPCFunctionResult<self::frontend_registration_service::ConnectedDevicesResponse> {
+        if *self.cache_valid.lock().await {
+            return Ok(tonic::Response::new(
+                self::frontend_registration_service::ConnectedDevicesResponse {
+                    devices: self.cached_devices_for_frontends.lock().await.clone(),
+                },
+            ));
+        }
         use self::frontend_registration_service::Device;
         let mut connected_devices_uuids_clone = Vec::new();
 
-        //todo: add caching for this list
         let mut to_return = Vec::<Device>::new();
 
         async {
@@ -172,6 +192,13 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
             });
         }
         .await;
+
+        {
+            *self.cached_devices_for_frontends.lock().await = to_return.clone();
+        }
+        {
+            *self.cache_valid.lock().await = true;
+        }
 
         return Ok(tonic::Response::new(
             self::frontend_registration_service::ConnectedDevicesResponse { devices: to_return },

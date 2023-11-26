@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use device_control_service::frontend_device_control::{frontend_device_control_service_server};
+use device_control_service::frontend_device_control::frontend_device_control_service_server;
 use fxhash::FxHashMap;
 use polling::polling_service::request_update_service_server;
 use registration::{
@@ -55,7 +55,8 @@ async fn main() -> anyhow::Result<()> {
         connected_devices.clone(),
         connected_device_uuids.clone(),
     );
-    let device_control_service = device_control_service::FrontendDeviceControlHandler::new(events.clone());
+    let device_control_service =
+        device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
@@ -70,8 +71,10 @@ async fn main() -> anyhow::Result<()> {
             ),
         )
         .add_service(
-            frontend_device_control_service_server::FrontendDeviceControlServiceServer::new(device_control_service)
-            )
+            frontend_device_control_service_server::FrontendDeviceControlServiceServer::new(
+                device_control_service,
+            ),
+        )
         .serve(addr)
         .await?;
 
