@@ -69,7 +69,7 @@ impl RegistrationService for ClientRegistrationHandler {
         let device_public_key: rsa::RsaPublicKey =
             serde_json::from_str(&request.public_key).unwrap();
 
-        let device = device::Device::new(capabilites, client_id, device_public_key);
+        let device = device::Device::new(request.name, capabilites, client_id, device_public_key);
 
         let response = registration_service::RegistrationResponse {
             public_key: self.string_public_key.clone(),
@@ -163,7 +163,7 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
                         .map(|capability| capability.capability as i32)
                         .collect();
                     let new_device = Device {
-                        device_name: String::from("todo"),
+                        device_name: device.name.clone(),
                         device_uuid: device.stringified_uuid.clone(),
                         capabilities: capabilities_i32,
                     };

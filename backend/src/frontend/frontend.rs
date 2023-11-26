@@ -109,6 +109,7 @@ async fn control_device(
 
     println!("What device would you like to control?: ");
     {
+        input_buffer.clear();
         let stdin = std::io::stdin();
         stdin.read_line(&mut input_buffer).unwrap();
     }
@@ -138,9 +139,11 @@ async fn control_device(
         });
 
     {
+        input_buffer.clear();
         let stdin = std::io::stdin();
         stdin.read_line(&mut input_buffer).unwrap();
     }
+
     input_buffer.pop();
     let choice = input_buffer.parse::<usize>().unwrap();
 

@@ -8,7 +8,8 @@ service RegistrationService {
 
 message RegistrationRequest {
     string public_key = 1;
-    repeated DeviceCapabilityStatus capabilities = 2;
+    string name = 2;
+    repeated DeviceCapabilityStatus capabilities = 3;
 }
 message RegistrationResponse {
     string public_key = 1;
