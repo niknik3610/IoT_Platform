@@ -50,10 +50,16 @@ async fn main() -> anyhow::Result<()> {
     );
 
     let events = ThreadSafeMutable::default();
-    let polling_service = polling::PollingHandler::new(connected_devices.clone(), events.clone());
+    let cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
+    let polling_service = polling::PollingHandler::new(
+        connected_devices.clone(),
+        events.clone(),
+        cache_valid.clone(),
+    );
     let frontend_registration_service = registration::FrontendRegistrationHandler::new(
         connected_devices.clone(),
         connected_device_uuids.clone(),
+        cache_valid.clone(),
     );
     let device_control_service =
         device_control_service::FrontendDeviceControlHandler::new(events.clone());

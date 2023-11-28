@@ -66,7 +66,17 @@ impl RegistrationService for ClientRegistrationHandler {
         let device_public_key: rsa::RsaPublicKey =
             serde_json::from_str(&request.public_key).unwrap();
 
-        let device = device::Device::new(request.name, capabilites, client_id, device_public_key);
+        let (active_capabilities, inactive_capabilities) = capabilites
+            .into_iter()
+            .partition(|capability| capability.available);
+
+        let device = device::Device::new(
+            request.name,
+            active_capabilities,
+            inactive_capabilities,
+            client_id,
+            device_public_key,
+        );
 
         let response = registration_service::RegistrationResponse {
             public_key: self.string_public_key.clone(),
@@ -109,11 +119,11 @@ impl FrontendRegistrationHandler {
     pub fn new(
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
+        cache_valid: ThreadSafeMutable<bool>,
     ) -> Self {
         let connected_frontends =
             Arc::new(tokio::sync::Mutex::new(ConnectedFrontendsType::default()));
         let cached_devices_for_frontends = ThreadSafeMutable::default();
-        let cache_valid = Arc::new(tokio::sync::Mutex::new(false));
         return Self {
             connected_devices,
             connected_frontends,
@@ -176,15 +186,15 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
             connected_devices_uuids_clone.iter().for_each(|device_id| {
                 let device = connected_devices.get(device_id);
                 if let Some(device) = device {
-                    let capabilities_i32 = device
-                        .capabilities
+                    let active_capabilities_i32 = device
+                        .active_capabilities
                         .iter()
                         .map(|capability| capability.capability as i32)
                         .collect();
                     let new_device = Device {
                         device_name: device.name.clone(),
                         device_uuid: device.stringified_uuid.clone(),
-                        capabilities: capabilities_i32,
+                        capabilities: active_capabilities_i32,
                     };
                     to_return.push(new_device);
                 }

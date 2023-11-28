@@ -7,3 +7,8 @@ enum Capability {
     TURN_ON = 2;
     TURN_OFF = 3;
 }
+
+message DeviceCapabilityStatus {
+    bool available = 1;
+    iot.types.Capability capability = 2;
+}

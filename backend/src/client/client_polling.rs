@@ -1,21 +1,38 @@
 use tonic::transport::Channel;
 
 use self::polling::{PollingOption, Update};
-use crate::client_types::types::{self};
+use crate::{
+    client_types::types::{self},
+    ThreadSafeMutable,
+};
 
 pub mod polling {
     tonic::include_proto!("iot.polling");
 }
 pub struct PollingService {
     pub client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
+    pub capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
+    pub updated: ThreadSafeMutable<bool>,
 }
 impl PollingService {
     pub async fn get_updates(&mut self, certificate: String, uuid: String) -> Option<Vec<Update>> {
+        let updated_capabilities = {
+            let mut update = self.updated.lock().await;
+
+            if !*update {
+                Vec::new()
+            } else {
+                *update = false;
+                self.capabilities.lock().await.clone()
+            }
+        };
+
         let updates = self
             .client
             .poll_for_update(tonic::Request::new(polling::PollRequest {
                 certificate,
                 uuid,
+                updated_capabilities,
             }))
             .await;
 
