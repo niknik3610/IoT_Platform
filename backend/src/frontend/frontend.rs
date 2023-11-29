@@ -115,13 +115,17 @@ async fn control_device(
     let mut input_buffer = String::new();
 
     let connected_devices = connected_devices.await?;
-    connected_devices
-        .iter()
-        .enumerate()
-        .for_each(|(count, device)| {
-            //todo: pretty print capabillities
-            println!("{count}: {}", device.device_name);
-        });
+
+    let mut quit_number = 99;
+    let mut device_iterator = connected_devices.iter().enumerate().peekable();
+    while let Some((count, device)) = device_iterator.next() {
+        println!("{count}: {}", device.device_name);
+        if device_iterator.peek().is_none() {
+            quit_number = count + 1;
+            println!("{quit_number}: Quit");
+            break;
+        }
+    }
 
     let device_to_control;
     let chosen_capabillity;
@@ -147,9 +151,12 @@ async fn control_device(
                 continue;
             }
         };
-        if choice >= connected_devices.len() {
+        if choice != quit_number && choice >= connected_devices.len() {
             println!("Please enter a valid input");
             continue;
+        }
+        if choice == quit_number {
+            return Ok(());
         }
         device_to_control = &connected_devices[choice];
         break;
@@ -157,20 +164,27 @@ async fn control_device(
 
     loop {
         println!("\nHeres what you can do:");
-        device_to_control
+        let mut choice_iterator = device_to_control
             .capabilities
             .iter()
             .enumerate()
-            .for_each(|(i, capabillity)| {
-                let capabillity = match Capability::try_from(*capabillity) {
-                    Ok(r) => r,
-                    Err(_e) => {
-                        println!("There was an error processing this capabillity");
-                        return;
-                    }
-                };
-                println!("{}: {:?}", i, capabillity);
-            });
+            .peekable();
+
+        while let Some((count, capabillity)) = choice_iterator.next() { 
+            let capabillity = match Capability::try_from(*capabillity) {
+                Ok(r) => r,
+                Err(_e) => {
+                    println!("There was an error processing this capabillity");
+                    continue;
+                }
+            };
+            println!("{}: {:?}", count, capabillity);
+
+            if choice_iterator.peek().is_none() {
+                quit_number = count + 1;
+                println!("{quit_number}: Quit");
+            }
+        };
 
         {
             input_buffer.clear();
@@ -193,7 +207,16 @@ async fn control_device(
             }
         };
 
-        chosen_capabillity = match Capability::try_from(device_to_control.capabilities[choice]) {
+        if choice != quit_number && choice >= device_to_control.capabilities.len() {
+            println!("Please enter a valid input");
+            continue;
+        }
+        if choice == quit_number {
+            return Ok(());
+        }
+
+        let choice = &device_to_control.capabilities[choice]; 
+        chosen_capabillity = match Capability::try_from(*choice) {
             Ok(r) => r,
             Err(_e) => {
                 println!("Please enter a valid input");
