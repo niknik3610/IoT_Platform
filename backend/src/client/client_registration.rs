@@ -19,6 +19,7 @@ mod client_registration_service {
 pub async fn register_self(
     public_key: &RsaPublicKey,
     capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
+    device_name: String,
 ) -> anyhow::Result<client_connection::ServerConnection> {
     let mut client = RegistrationServiceClient::connect(SERVER_IP).await?;
     let stringified_public_key: String = serde_json::to_string(public_key).unwrap();
@@ -27,7 +28,7 @@ pub async fn register_self(
     {
         let capabilities = capabilities.lock().await;
         response = client.register(RegistrationRequest {
-            name: String::from("Test Device"),
+            name: device_name, 
             public_key: stringified_public_key,
             capabilities: capabilities.clone(),
         });
@@ -48,9 +49,10 @@ pub async fn register_self(
 pub async fn repeated_register_self(
     public_key: &RsaPublicKey,
     capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
+    device_name: String,
 ) -> client_connection::ServerConnection {
     let id = loop {
-        let id_req_result = register_self(public_key, capabilities.clone()).await;
+        let id_req_result = register_self(public_key, capabilities.clone(), device_name.clone()).await;
         match id_req_result {
             Ok(r) => {
                 break r;

@@ -72,7 +72,6 @@ impl RequestUpdateService for PollingHandler {
     ) -> RPCFunctionResult<PollResponse> {
         let request = request.into_inner();
         let device_uuid = request.uuid;
-
         {
             let mut connected_devices = self.connected_devices.lock().await;
             let device = connected_devices.get_mut(&device_uuid);

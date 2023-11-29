@@ -15,10 +15,11 @@ prost-types = "0.12.1"
 fxhash = "0.2.1"
 rsa = { version = "0.9.3", features = ["serde", "sha2", "pem"] } 
 rand = "0.8.5"
-serde = "1.0.190"
+serde = { version = "1.0.190", features = ["derive"] }
 serde_json = "1.0.108"
 prost-build = "0.12.3"
 futures = "0.3.29"
+toml = "0.8.8"
 
 [dependencies.uuid]
 version = "1.5.0"

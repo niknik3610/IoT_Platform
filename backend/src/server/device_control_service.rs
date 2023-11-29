@@ -39,7 +39,7 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
             Capability::try_from(capability_to_be_triggered).unwrap(),
             uuid.clone(),
             None,
-        ); //todo
+        );
         {
             let mut events = self.events.lock().await;
             let mut device_events = events.get_mut(&uuid);

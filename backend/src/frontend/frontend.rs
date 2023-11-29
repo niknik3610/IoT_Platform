@@ -21,6 +21,7 @@ pub const SERVER_IP: &str = "http://[::1]:50051";
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    //todo: add ability to exit any page on frontend
     println!("Connecting...");
     let mut registration_client = FrontendRegistrationServiceClient::connect(SERVER_IP).await?;
     let mut control_client = FrontendDeviceControlServiceClient::connect(SERVER_IP).await?;

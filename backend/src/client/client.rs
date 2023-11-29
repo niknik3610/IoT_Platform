@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use client_config::ClientConfig;
 use client_types::types::{Capability, DeviceCapabilityStatus};
 use futures::future::join_all;
 use tokio::task;
@@ -8,8 +9,11 @@ pub mod client_connection;
 pub mod client_polling;
 pub mod client_registration;
 pub mod client_types;
+mod client_config;
 
 pub const SERVER_IP: &str = "http://[::1]:50051";
+const CONFIG_PATH: &str = "./example_config.toml";
+
 const RSA_KEY_SIZE: usize = 2048;
 const POLLING_INTERVAL: u64 = 500;
 
@@ -18,6 +22,16 @@ pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 //todo: fix disconnect error, probably in polling
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let config = ClientConfig::load_config(CONFIG_PATH);
+    let config = match config {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("Error loading config: {}", e.to_string());
+            println!("Loading default config...");
+            ClientConfig::default()
+        }
+    };
+
     let private_key;
     let capabilities = vec![
         DeviceCapabilityStatus {
@@ -40,6 +54,7 @@ async fn main() -> anyhow::Result<()> {
     let client_connection_details = client_registration::repeated_register_self(
         &private_key.to_public_key(),
         capabilities.clone(),
+        config.device_name,
     )
     .await;
 
@@ -91,6 +106,8 @@ async fn main() -> anyhow::Result<()> {
                             async {
                                 println!("Received Request to Turn Off");
                                 let mut capabilities = capabilities.lock().await;
+                                //todo: make an api to turn each capability on or off, using name
+                                //instead of this dumb thing
                                 capabilities.get_mut(1).unwrap().available = false;
                                 capabilities.get_mut(0).unwrap().available = true;
                                 *polling_service.updated.lock().await = true;
