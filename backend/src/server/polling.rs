@@ -2,7 +2,7 @@ use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
-use crate::types::types::{self, Capability, DeviceCapabilityStatus};
+use crate::types::types::{self, DeviceCapabilityStatus};
 use crate::{ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
 use fxhash::FxHashMap;
 use tonic::async_trait;
@@ -13,12 +13,12 @@ pub mod polling_service {
 
 #[derive(Clone)]
 pub struct DeviceEvent {
-    capability: Capability,
+    capability: String,
     _requester_uuid: String,
     value: Option<i32>,
 }
 impl DeviceEvent {
-    pub fn new(capability: Capability, requester_uuid: String, value: Option<i32>) -> Self {
+    pub fn new(capability: String, requester_uuid: String, value: Option<i32>) -> Self {
         return DeviceEvent {
             capability,
             _requester_uuid: requester_uuid,
@@ -39,7 +39,7 @@ impl DeviceEvent {
         };
 
         return polling_service::Update {
-            capability: self.capability as i32,
+            capability: self.capability.clone(),
             has_value,
             value,
         };

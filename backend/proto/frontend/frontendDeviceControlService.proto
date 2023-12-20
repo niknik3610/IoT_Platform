@@ -8,7 +8,7 @@ service FrontendDeviceControlService{
 
 message DeviceControlRequest{
     string device_uuid = 1;
-    types.Capability capability = 2;
+    string capability = 2;
 }
 
 message DeviceControlResponse{

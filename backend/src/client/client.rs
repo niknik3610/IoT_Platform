@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
 use client_config::ClientConfig;
-use client_types::types::{Capability, DeviceCapabilityStatus};
+use client_types::types::DeviceCapabilityStatus;
 use futures::future::join_all;
 use tokio::task;
 
+use crate::client_config::ParsedConfig;
+
+mod client_config;
 pub mod client_connection;
 pub mod client_polling;
 pub mod client_registration;
 pub mod client_types;
-mod client_config;
 
 pub const SERVER_IP: &str = "http://[::1]:50051";
 const CONFIG_PATH: &str = "./example_config.toml";
@@ -28,21 +30,12 @@ async fn main() -> anyhow::Result<()> {
         Err(e) => {
             eprintln!("Error loading config: {}", e.to_string());
             println!("Loading default config...");
-            ClientConfig::default()
+            ParsedConfig::default()
         }
     };
 
     let private_key;
-    let capabilities = vec![
-        DeviceCapabilityStatus {
-            available: false,
-            capability: Capability::TurnOff as i32,
-        },
-        DeviceCapabilityStatus {
-            available: true,
-            capability: Capability::TurnOn as i32,
-        },
-    ];
+    let capabilities = config.capabilities;
 
     let capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>> =
         Arc::new(tokio::sync::Mutex::new(capabilities));
@@ -86,40 +79,41 @@ async fn main() -> anyhow::Result<()> {
                         continue;
                     }
                 };
-                let futures = updates.iter().map(|update| async {
-                    let capability = Capability::try_from(update.capability).unwrap();
-                    //todo: find a way for this to run user defined functions (defined in a different file)
-                    //todo: match these to user defined strings, not enums
-                    match capability {
-                        Capability::None => {}
-                        Capability::TurnOn => {
-                            println!("Received Request to Turn On");
-                            async {
-                                let mut capabilities = capabilities.lock().await;
-                                capabilities.get_mut(0).unwrap().available = true;
-                                capabilities.get_mut(1).unwrap().available = false;
-                                *polling_service.updated.lock().await = true;
-                            }
-                            .await;
-                        }
-                        Capability::TurnOff => {
-                            async {
-                                println!("Received Request to Turn Off");
-                                let mut capabilities = capabilities.lock().await;
-                                //todo: make an api to turn each capability on or off, using name
-                                //instead of this dumb thing
-                                capabilities.get_mut(1).unwrap().available = false;
-                                capabilities.get_mut(0).unwrap().available = true;
-                                *polling_service.updated.lock().await = true;
-                            }
-                            .await;
-                        }
-                        Capability::Unknown => {
-                            println!("Unknown Request Received");
-                        }
-                    };
-                });
-                join_all(futures).await;
+                //todo: add abillity to add callback functions to this
+                // let futures = updates.iter().map(|update| async {
+                //     let capability = Capability::try_from(update.capability).unwrap();
+                //     //todo: find a way for this to run user defined functions (defined in a different file)
+                //     //todo: match these to user defined strings, not enums
+                //     match capability {
+                //         Capability::None => {}
+                //         Capability::TurnOn => {
+                //             println!("Received Request to Turn On");
+                //             async {
+                //                 let mut capabilities = capabilities.lock().await;
+                //                 capabilities.get_mut(0).unwrap().available = true;
+                //                 capabilities.get_mut(1).unwrap().available = false;
+                //                 *polling_service.updated.lock().await = true;
+                //             }
+                //             .await;
+                //         }
+                //         Capability::TurnOff => {
+                //             async {
+                //                 println!("Received Request to Turn Off");
+                //                 let mut capabilities = capabilities.lock().await;
+                //                 //todo: make an api to turn each capability on or off, using name
+                //                 //instead of this dumb thing
+                //                 capabilities.get_mut(1).unwrap().available = false;
+                //                 capabilities.get_mut(0).unwrap().available = true;
+                //                 *polling_service.updated.lock().await = true;
+                //             }
+                //             .await;
+                //         }
+                //         Capability::Unknown => {
+                //             println!("Unknown Request Received");
+                //         }
+                //     };
+                // });
+                // join_all(futures).await;
             }
         });
     }

@@ -10,7 +10,6 @@ use crate::{
         frontend_registration_service_client::FrontendRegistrationServiceClient,
         ConnectedDevicesRequest, RegistrationRequest,
     },
-    frontend_types::types::Capability,
 };
 
 pub mod frontend_device_control;
@@ -164,27 +163,16 @@ async fn control_device(
 
     loop {
         println!("\nHeres what you can do:");
-        let mut choice_iterator = device_to_control
-            .capabilities
-            .iter()
-            .enumerate()
-            .peekable();
+        let mut choice_iterator_capabilities = device_to_control.capabilities.iter().enumerate().peekable();
 
-        while let Some((count, capabillity)) = choice_iterator.next() { 
-            let capabillity = match Capability::try_from(*capabillity) {
-                Ok(r) => r,
-                Err(_e) => {
-                    println!("There was an error processing this capabillity");
-                    continue;
-                }
-            };
-            println!("{}: {:?}", count, capabillity);
+        while let Some((count, capabillity)) = choice_iterator_capabilities.next() {
+            println!("{}: {}", count, capabillity.capability);
 
-            if choice_iterator.peek().is_none() {
+            if choice_iterator_capabilities.peek().is_none() {
                 quit_number = count + 1;
                 println!("{quit_number}: Quit");
             }
-        };
+        }
 
         {
             input_buffer.clear();
@@ -215,14 +203,7 @@ async fn control_device(
             return Ok(());
         }
 
-        let choice = &device_to_control.capabilities[choice]; 
-        chosen_capabillity = match Capability::try_from(*choice) {
-            Ok(r) => r,
-            Err(_e) => {
-                println!("Please enter a valid input");
-                continue;
-            }
-        };
+        chosen_capabillity = &device_to_control.capabilities[choice];
         break;
     }
 
@@ -230,7 +211,7 @@ async fn control_device(
     let result = control_client
         .control_device(DeviceControlRequest {
             device_uuid: device_to_control.device_uuid.clone(),
-            capability: chosen_capabillity as i32,
+            capability: chosen_capabillity.capability.clone(),
         })
         .await;
 

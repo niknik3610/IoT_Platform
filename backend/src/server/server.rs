@@ -47,7 +47,7 @@ async fn main() -> anyhow::Result<()> {
         signing_service,
         private_key.to_public_key(),
         connected_device_uuids.clone(),
-        );
+    );
 
     let events = ThreadSafeMutable::default();
     let cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
@@ -55,16 +55,16 @@ async fn main() -> anyhow::Result<()> {
         connected_devices.clone(),
         events.clone(),
         cache_valid.clone(),
-        );
+    );
     let frontend_registration_service = registration::FrontendRegistrationHandler::new(
         connected_devices.clone(),
         connected_device_uuids.clone(),
         cache_valid.clone(),
-        );
+    );
     let device_control_service =
         device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
-    // let forever = tokio::task::spawn(async move { 
+    // let forever = tokio::task::spawn(async move {
     //     let mut interval =
     //         tokio::time::interval(std::time::Duration::from_millis(1000));
     //     loop {
@@ -77,23 +77,23 @@ async fn main() -> anyhow::Result<()> {
     // });
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
-                registration_service,
-                ))
+            registration_service,
+        ))
         .add_service(
             request_update_service_server::RequestUpdateServiceServer::new(polling_service),
-            )
+        )
         .add_service(
             frontend_registration_service_server::FrontendRegistrationServiceServer::new(
                 frontend_registration_service,
-                ),
-                )
+            ),
+        )
         .add_service(
             frontend_device_control_service_server::FrontendDeviceControlServiceServer::new(
                 device_control_service,
-                ),
-                )
+            ),
+        )
         .serve(addr)
-        .await?; 
+        .await?;
 
     // forever.await.unwrap();
     Ok(())

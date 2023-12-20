@@ -1,6 +1,5 @@
 use crate::{
     polling::DeviceEvent,
-    types::types::{self, Capability},
     ThreadSafeMutable,
 };
 use fxhash::FxHashMap;
@@ -35,11 +34,7 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         let uuid = request.device_uuid;
         let capability_to_be_triggered = request.capability;
 
-        let new_event = DeviceEvent::new(
-            Capability::try_from(capability_to_be_triggered).unwrap(),
-            uuid.clone(),
-            None,
-        );
+        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), None);
         {
             let mut events = self.events.lock().await;
             let mut device_events = events.get_mut(&uuid);

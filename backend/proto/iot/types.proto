@@ -1,14 +1,7 @@
 syntax = "proto3";
 package iot.types;
 
-enum Capability {
-    UNKNOWN = 0;
-    NONE = 1;
-    TURN_ON = 2;
-    TURN_OFF = 3;
-}
-
 message DeviceCapabilityStatus {
     bool available = 1;
-    iot.types.Capability capability = 2;
+    string capability = 2;
 }

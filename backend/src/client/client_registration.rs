@@ -28,7 +28,7 @@ pub async fn register_self(
     {
         let capabilities = capabilities.lock().await;
         response = client.register(RegistrationRequest {
-            name: device_name, 
+            name: device_name,
             public_key: stringified_public_key,
             capabilities: capabilities.clone(),
         });
@@ -52,7 +52,8 @@ pub async fn repeated_register_self(
     device_name: String,
 ) -> client_connection::ServerConnection {
     let id = loop {
-        let id_req_result = register_self(public_key, capabilities.clone(), device_name.clone()).await;
+        let id_req_result =
+            register_self(public_key, capabilities.clone(), device_name.clone()).await;
         match id_req_result {
             Ok(r) => {
                 break r;
