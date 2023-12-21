@@ -163,7 +163,8 @@ async fn control_device(
 
     loop {
         println!("\nHeres what you can do:");
-        let mut choice_iterator_capabilities = device_to_control.capabilities.iter().enumerate().peekable();
+        let mut choice_iterator_capabilities =
+            device_to_control.capabilities.iter().enumerate().peekable();
 
         while let Some((count, capabillity)) = choice_iterator_capabilities.next() {
             println!("{}: {}", count, capabillity.capability);

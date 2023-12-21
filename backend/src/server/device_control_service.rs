@@ -1,7 +1,4 @@
-use crate::{
-    polling::DeviceEvent,
-    ThreadSafeMutable,
-};
+use crate::{polling::DeviceEvent, ThreadSafeMutable};
 use fxhash::FxHashMap;
 use tonic::async_trait;
 

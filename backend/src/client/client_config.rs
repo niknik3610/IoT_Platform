@@ -57,6 +57,7 @@ impl ClientConfig {
             });
         }
 
+        println!("No config found, generating a default config");
         let config = ClientConfig::default();
         let toml = toml::to_string(&config)?;
 
@@ -79,9 +80,9 @@ impl Default for ClientConfig {
 
 impl Default for ParsedConfig {
     fn default() -> Self {
-         Self {
-             device_name: String::from("Unnamed Device"),
-             capabilities: Vec::new(),
-         }
+        Self {
+            device_name: String::from("Unnamed Device"),
+            capabilities: Vec::new(),
+        }
     }
 }
