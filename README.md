@@ -6,3 +6,8 @@
 - [X] Add ability to hand client callback functions to be called when certain capabilities are triggered
 - [ ] Write a proper README
 - [ ] Get client working on a Raspberry Pi
+
+Required to run (will be added to a DockerFile later):
+```
+sudo apt install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev clang avahi-daemon libavahi-client-dev protobuf-compiler
+```
