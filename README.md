@@ -11,3 +11,6 @@ Required to run (will be added to a DockerFile later):
 ```
 sudo apt install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev clang avahi-daemon libavahi-client-dev protobuf-compiler
 ```
+
+### Possible future additions
+- Using [Clap](https://docs.rs/clap/latest/clap/) for command line arguments
