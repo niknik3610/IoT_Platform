@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use client_config::ClientConfig;
 use iot_client::ClientHandler;
+use rppal::gpio::Gpio;
 use zeroconf::{browser::TMdnsBrowser, event_loop::TEventLoop};
 
 use crate::client_config::ParsedConfig;
@@ -28,10 +29,10 @@ async fn main() -> anyhow::Result<()> {
 
     let mut client_handler = ClientHandler::new();
     client_handler
-        .add_callback("Turn On", Box::new(|| println!("Beep boop i must turn on")))
+        .add_callback("Turn On", Box::new(turn_on_led))
         .await;
     client_handler
-        .add_callback("Turn Off", Box::new(|| println!("I am turning off :(")))
+        .add_callback("Turn Off", Box::new(turn_off_led))
         .await;
 
     let _forever = tokio::task::spawn( async {    
@@ -54,4 +55,15 @@ async fn zero_conf_discover_services() -> anyhow::Result<()>{
     loop {
         event_loop.poll(Duration::from_secs(0))?;
     }
+}
+
+const GPIO_LED_PIN: u8 = 2;
+fn turn_on_led() {
+    let mut pin = Gpio::new().unwrap().get(GPIO_LED_PIN).unwrap().into_output();
+    pin.set_high();
+}
+
+fn turn_off_led() {
+    let mut pin = Gpio::new().unwrap().get(GPIO_LED_PIN).unwrap().into_output();
+    pin.set_low();
 }

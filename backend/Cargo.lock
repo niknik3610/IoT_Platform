@@ -818,6 +818,7 @@ dependencies = [
  "prost-build",
  "prost-types",
  "rand",
+ "rppal",
  "rsa",
  "serde",
  "serde_json",
@@ -1282,6 +1283,15 @@ name = "regex-syntax"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
+
+[[package]]
+name = "rppal"
+version = "0.16.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d136b79fe4b07246bb6bcc67646e5d2f060b84f7d04a6d052b365249ad14e4a"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "rsa"
