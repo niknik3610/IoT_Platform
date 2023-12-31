@@ -72,6 +72,7 @@ async fn main() -> anyhow::Result<()> {
         let _zeroconf_service = zero_conf_advertise_service().await;
     });
 
+    println!("Listening on port {}", ZERO_CONF_SERVICE_PORT);
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
             registration_service,

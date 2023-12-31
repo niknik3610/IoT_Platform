@@ -35,9 +35,9 @@ async fn main() -> anyhow::Result<()> {
         .add_callback("Turn Off", Box::new(turn_off_led))
         .await;
 
-    let _forever = tokio::task::spawn( async {    
-        zero_conf_discover_services().await.unwrap();
-    });
+    // let _forever = tokio::task::spawn( async {    
+    //     zero_conf_discover_services().await.unwrap();
+    // });
 
     client_handler.run(config).await.unwrap();
     return Ok(());

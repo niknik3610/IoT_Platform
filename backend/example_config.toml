@@ -2,7 +2,7 @@ device_name = "Test Device"
 
 [capability."Turn Off"]
     #add display name to this, to be displayed on frontend
-    available = false
+    available = true
 
 [capability."Turn On"]
     available = true
