@@ -11,12 +11,12 @@ import { RouterLink } from "vue-router";
 
 <style scoped>
 .nav-bar {
-    font-weight: bold;
-    font-size: large;
-    align-items: center;
     display: flex;
+    font-weight: bold;
+    justify-content: center;
 }
 .router-item {
     padding: 10px;
+    font-size: 24px;
 }
 </style>
