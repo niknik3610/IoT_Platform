@@ -7,6 +7,7 @@ use registration::{
     frontend_registration_service::frontend_registration_service_server,
     registration_service::registration_service_server,
 };
+use rsa::pkcs1v15::SigningKey;
 use tonic::transport::Server;
 
 pub mod certificate_signing;
@@ -38,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
         private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap();
     }
 
-    let signing_key = rsa::pkcs1v15::SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
+    let signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
     let signing_service = certificate_signing::CertificateSigningService::new(signing_key);
     let registration_service = registration::ClientRegistrationHandler::new(
