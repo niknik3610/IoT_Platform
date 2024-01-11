@@ -15,7 +15,7 @@ Please view the introduction (needs hyperlink) and example device (needs hyperli
 
 Required packages:
 ```
-sudo apt install xorg-dev libxcb-shape0-dev libxcb-xfixes0-dev clang avahi-daemon libavahi-client-dev protobuf-compiler
+sudo apt install protobuf-compiler
 ```
 
 ## Project Layout
