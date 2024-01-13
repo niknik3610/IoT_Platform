@@ -13,11 +13,12 @@
         "format": "prettier --write src/"
     },
     "dependencies": {
+        "@grpc/grpc-js": "^1.9.13",
         "@protobuf-ts/runtime": "^2.9.3",
         "@protobuf-ts/runtime-rpc": "^2.9.3",
+        "grpc_tools_node_protoc_ts": "^5.3.3",
+        "grpc-tools": "^1.12.4",
         "pinia": "^2.1.7",
-        "protobufjs": "^7.2.5",
-        "protobufjs-cli": "^1.1.2",
         "vue": "^3.3.11",
         "vue-router": "^4.2.5"
     },

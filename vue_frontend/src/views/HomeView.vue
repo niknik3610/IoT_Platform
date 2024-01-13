@@ -1,4 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import type { IFrontendRegistrationServiceService_IRegister } from "@/generated/registrationService_grpc_pb";
+import { RegistrationRequest } from "@/generated/registrationService_pb"
+
+class RegistrationServer implements IFrontendRegistrationServiceService_IRegister {
+
+}
+</script>
 
 <template>
     <div class="connected-devices">
