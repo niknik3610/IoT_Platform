@@ -8,7 +8,6 @@ const props = defineProps({
     },
 });
 
-
 const lightTurnedOn = ref(false);
 const currentButtonText = ref("Turn On");
 

@@ -7,8 +7,12 @@ import vue from "@vitejs/plugin-vue";
 export default defineConfig({
     plugins: [vue()],
     resolve: {
+        preserveSymlinks: true,
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url)),
         },
+    },
+    build: {
+        target: 'esnext',
     },
 });

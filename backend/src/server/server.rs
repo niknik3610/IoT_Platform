@@ -17,6 +17,7 @@ pub mod frontend_clients;
 pub mod polling;
 mod registration;
 pub mod types;
+mod web_json_translation;
 
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub type RPCFunctionResult<T> = Result<tonic::Response<T>, tonic::Status>;

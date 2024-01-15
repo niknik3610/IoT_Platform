@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { IFrontendRegistrationServiceService_IRegister } from "@/generated/registrationService_grpc_pb";
-import { RegistrationRequest } from "@/generated/registrationService_pb"
+import { registerWithServer } from "@/backend_calls/registration";
+import { onMounted } from "vue";
 
-class RegistrationServer implements IFrontendRegistrationServiceService_IRegister {
-
-}
+onMounted(async () => {
+    let response = await registerWithServer();
+    console.log(response);
+});
 </script>
 
 <template>
