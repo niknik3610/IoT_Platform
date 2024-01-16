@@ -7,6 +7,7 @@ use crate::ThreadSafeMutable;
 use super::json_registration::json_registration_service::frontend_registration_service_client::FrontendRegistrationServiceClient;
 pub const SERVER_IP: &str = "http://[::1]:50051";
 
+#[derive(Clone)]
 pub struct TranslationClientState {
     pub registration_client: ThreadSafeMutable<FrontendRegistrationServiceClient<Channel>>,
 }

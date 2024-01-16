@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use actix_web::{web, App, HttpServer};
+use clap::Parser;
 use device_control_service::frontend_device_control::frontend_device_control_service_server;
 use fxhash::FxHashMap;
 use polling::polling_service::request_update_service_server;
@@ -9,6 +11,7 @@ use registration::{
 };
 use rsa::pkcs1v15::SigningKey;
 use tonic::transport::Server;
+use web_json_translation::json_registration;
 
 pub mod certificate_signing;
 pub mod device;
@@ -25,8 +28,18 @@ pub type ConnectedDevicesType = FxHashMap<String, device::Device>;
 
 const RSA_KEY_SIZE: usize = 2048;
 
+#[derive(clap::Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    ///Run an additional JSON frontend api endpoint, all json requests get routed to main GRPC
+    #[arg(long, default_value_t = false)]
+    json_frontend: bool,
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
     let addr = "[::1]:50051".parse()?;
 
     let connected_devices: ThreadSafeMutable<ConnectedDevicesType> = Arc::default();
@@ -66,6 +79,21 @@ async fn main() -> anyhow::Result<()> {
     let device_control_service =
         device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
+    let json_server_handle = if args.json_frontend {
+        Some(tokio::spawn(async {
+            let result = run_json_frontend().await;
+            match result {
+                Ok(_r) => {}
+                Err(e) => {
+                    eprintln!("Error when running JSON translation service:");
+                    eprintln!("{e}");
+                }
+            }
+        }))
+    } else {
+        None
+    };
+
     Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
             registration_service,
@@ -85,5 +113,26 @@ async fn main() -> anyhow::Result<()> {
         )
         .serve(addr)
         .await?;
+
+    if let Some(handle) = json_server_handle {
+        let _ = handle.await;
+    }
     Ok(())
+}
+
+async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
+    const JSON_PORT: u16 = 50052;
+    const JSON_IP: &str = "127.0.0.1";
+
+    let json_state = web_json_translation::json_translation::TranslationClientState::new().await?;
+
+    let result = HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(json_state.clone()))
+            .service(json_registration::json_registration)
+    })
+    .bind((JSON_IP, JSON_PORT))?
+    .run();
+
+    return Ok(result);
 }
