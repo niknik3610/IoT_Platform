@@ -5,7 +5,7 @@ import { registerSelf } from "@/backend_calls/registration"
 onMounted(async () => {
     //todo: add to a definitions file
     let server_ip = "127.0.0.1:50052";
-    let response = await registerSelf(server_ip, "testDevice");
+    let response = await registerSelf("testDevice");
     console.log(response);
 });
 </script>
