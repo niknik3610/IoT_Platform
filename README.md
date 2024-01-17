@@ -40,5 +40,5 @@ sudo apt install protobuf-compiler
 
 
 ## Possible future additions
-- Using [Clap](https://docs.rs/clap/latest/clap/) for command line arguments
+Nothing here ATM
 
