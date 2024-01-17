@@ -140,8 +140,11 @@ async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
 
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     let result = HttpServer::new(move || {
+        let cors = actix_cors::Cors::permissive();
+
         App::new()
             .app_data(web::Data::new(json_state.clone()))
+            .wrap(cors)
             .wrap(actix_web::middleware::Logger::default()) //todo: make optional
             .service(json_registration::json_registration)
     })
