@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{sync::Arc, future::IntoFuture};
 
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
@@ -11,7 +11,7 @@ use registration::{
 };
 use rsa::pkcs1v15::SigningKey;
 use tonic::transport::Server;
-use web_json_translation::json_registration;
+use web_json_translation::{json_registration, json_translation::TranslationClientState};
 
 pub mod certificate_signing;
 pub mod device;
@@ -77,24 +77,9 @@ async fn main() -> anyhow::Result<()> {
         cache_valid.clone(),
     );
     let device_control_service =
-        device_control_service::FrontendDeviceControlHandler::new(events.clone());
+        device_control_service::FrontendDeviceControlHandler::new(events.clone()); 
 
-    let json_server_handle = if args.json_frontend {
-        Some(tokio::spawn(async {
-            let result = run_json_frontend().await;
-            match result {
-                Ok(_r) => {}
-                Err(e) => {
-                    eprintln!("Error when running JSON translation service:");
-                    eprintln!("{e}");
-                }
-            }
-        }))
-    } else {
-        None
-    };
-
-    Server::builder()
+    let grpc_server = Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
             registration_service,
         ))
@@ -111,28 +96,59 @@ async fn main() -> anyhow::Result<()> {
                 device_control_service,
             ),
         )
-        .serve(addr)
-        .await?;
+        .serve(addr);
 
-    if let Some(handle) = json_server_handle {
-        let _ = handle.await;
+    let grpc_handle = tokio::spawn(async move {
+        grpc_server.await
+    });
+
+    if args.json_frontend {
+        match run_json_frontend().await {
+            Ok(json_server) => {
+                tokio::spawn(async move {
+                    json_server.await
+                });
+            },
+            Err(e) => {
+                eprintln!("Error when starting JSON server:");
+                eprintln!("{e}");
+            }
+        };
+    }
+    match grpc_handle.into_future().await {
+        Ok(_) => println!("The GRPC Server excited Succesfully"),
+        Err(e) => { 
+            eprintln!("There was an error while running the GRPC Server:");
+            eprintln!("{e}");
+        }
     }
     Ok(())
 }
 
 async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
-    const JSON_PORT: u16 = 50052;
-    const JSON_IP: &str = "127.0.0.1";
+    const ADDRESS: &str = "localhost:50052";
+    println!("Starting JSON API Layer...");
+    let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
+    let json_state = loop {
+        interval.tick().await;
+        let result = web_json_translation::json_translation::TranslationClientState::new().await;
+        match result {
+            Ok(r) => break r,
+            Err(_e) => println!("Could not connect to grpc service, retrying..."),
+        }
+    };
 
-    let json_state = web_json_translation::json_translation::TranslationClientState::new().await?;
-
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     let result = HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(json_state.clone()))
+            .wrap(actix_web::middleware::Logger::default()) //todo: make optional
             .service(json_registration::json_registration)
     })
-    .bind((JSON_IP, JSON_PORT))?
+    .bind(ADDRESS)?
     .run();
 
+    println!("Successfully Started JSON API Layer on {ADDRESS}");
+    
     return Ok(result);
 }

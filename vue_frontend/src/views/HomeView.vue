@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { registerWithServer } from "@/backend_calls/registration";
 import { onMounted } from "vue";
+import { registerSelf } from "@/backend_calls/registration"
 
 onMounted(async () => {
-    let response = await registerWithServer();
+    //todo: add to a definitions file
+    let server_ip = "127.0.0.1:50052";
+    let response = await registerSelf(server_ip, "testDevice");
     console.log(response);
 });
 </script>
