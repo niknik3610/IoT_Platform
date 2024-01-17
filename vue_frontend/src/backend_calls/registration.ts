@@ -1,22 +1,25 @@
 import { API_REGISTRATION_ADDRESS } from "@/api_call_links";
-import { frontend } from "@/generated/generated"
+import { frontend } from "@/generated/generated";
+import { Result, errAsync, okAsync } from "neverthrow";
 
-export async function registerSelf(deviceName: String): Promise<frontend.registration.RegistrationResponse | undefined> {
-    let response = await fetch(API_REGISTRATION_ADDRESS, {
+export async function registerSelf(
+    deviceName: String,
+): Promise<Result<frontend.registration.RegistrationResponse, Error>> {
+    const response = await fetch(API_REGISTRATION_ADDRESS, {
         method: "POST",
         body: JSON.stringify({
-            "device_name":  deviceName,
+            device_name: deviceName,
         }),
         headers: {
-            "Content-type": "application/json; charset=UTF-8"
-        }
+            "Content-type": "application/json; charset=UTF-8",
+        },
     });
 
     try {
-        let parsed_response: frontend.registration.RegistrationResponse = await JSON.parse(await response.text());
-        return parsed_response;
+        const parsed_response: frontend.registration.RegistrationResponse =
+            await JSON.parse(await response.text());
+        return okAsync(parsed_response);
     } catch (e) {
-        console.error(e);
-        return undefined;
+        return errAsync(new Error("Received a Malformed Api Response"));
     }
 }

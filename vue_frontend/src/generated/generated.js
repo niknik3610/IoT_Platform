@@ -2,13 +2,14 @@
 import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
-const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+const $Reader = $protobuf.Reader,
+    $Writer = $protobuf.Writer,
+    $util = $protobuf.util;
 
 // Exported root namespace
 const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
 
-export const frontend = $root.frontend = (() => {
-
+export const frontend = ($root.frontend = (() => {
     /**
      * Namespace frontend.
      * @exports frontend
@@ -16,8 +17,7 @@ export const frontend = $root.frontend = (() => {
      */
     const frontend = {};
 
-    frontend.devicecontrol = (function() {
-
+    frontend.devicecontrol = (function () {
         /**
          * Namespace devicecontrol.
          * @memberof frontend
@@ -25,8 +25,7 @@ export const frontend = $root.frontend = (() => {
          */
         const devicecontrol = {};
 
-        devicecontrol.FrontendDeviceControlService = (function() {
-
+        devicecontrol.FrontendDeviceControlService = (function () {
             /**
              * Constructs a new FrontendDeviceControlService service.
              * @memberof frontend.devicecontrol
@@ -37,11 +36,22 @@ export const frontend = $root.frontend = (() => {
              * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
              * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
              */
-            function FrontendDeviceControlService(rpcImpl, requestDelimited, responseDelimited) {
-                $protobuf.rpc.Service.call(this, rpcImpl, requestDelimited, responseDelimited);
+            function FrontendDeviceControlService(
+                rpcImpl,
+                requestDelimited,
+                responseDelimited,
+            ) {
+                $protobuf.rpc.Service.call(
+                    this,
+                    rpcImpl,
+                    requestDelimited,
+                    responseDelimited,
+                );
             }
 
-            (FrontendDeviceControlService.prototype = Object.create($protobuf.rpc.Service.prototype)).constructor = FrontendDeviceControlService;
+            (FrontendDeviceControlService.prototype = Object.create(
+                $protobuf.rpc.Service.prototype,
+            )).constructor = FrontendDeviceControlService;
 
             /**
              * Creates new FrontendDeviceControlService service using the specified rpc implementation.
@@ -53,7 +63,11 @@ export const frontend = $root.frontend = (() => {
              * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
              * @returns {FrontendDeviceControlService} RPC service. Useful where requests and/or responses are streamed.
              */
-            FrontendDeviceControlService.create = function create(rpcImpl, requestDelimited, responseDelimited) {
+            FrontendDeviceControlService.create = function create(
+                rpcImpl,
+                requestDelimited,
+                responseDelimited,
+            ) {
                 return new this(rpcImpl, requestDelimited, responseDelimited);
             };
 
@@ -76,9 +90,20 @@ export const frontend = $root.frontend = (() => {
              * @returns {undefined}
              * @variation 1
              */
-            Object.defineProperty(FrontendDeviceControlService.prototype.controlDevice = function controlDevice(request, callback) {
-                return this.rpcCall(controlDevice, $root.frontend.devicecontrol.DeviceControlRequest, $root.frontend.devicecontrol.DeviceControlResponse, request, callback);
-            }, "name", { value: "ControlDevice" });
+            Object.defineProperty(
+                (FrontendDeviceControlService.prototype.controlDevice =
+                    function controlDevice(request, callback) {
+                        return this.rpcCall(
+                            controlDevice,
+                            $root.frontend.devicecontrol.DeviceControlRequest,
+                            $root.frontend.devicecontrol.DeviceControlResponse,
+                            request,
+                            callback,
+                        );
+                    }),
+                "name",
+                { value: "ControlDevice" },
+            );
 
             /**
              * Calls ControlDevice.
@@ -93,8 +118,7 @@ export const frontend = $root.frontend = (() => {
             return FrontendDeviceControlService;
         })();
 
-        devicecontrol.DeviceControlRequest = (function() {
-
+        devicecontrol.DeviceControlRequest = (function () {
             /**
              * Properties of a DeviceControlRequest.
              * @memberof frontend.devicecontrol
@@ -113,7 +137,11 @@ export const frontend = $root.frontend = (() => {
              */
             function DeviceControlRequest(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -156,12 +184,21 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             DeviceControlRequest.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.deviceUuid != null && Object.hasOwnProperty.call(message, "deviceUuid"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.deviceUuid);
-                if (message.capability != null && Object.hasOwnProperty.call(message, "capability"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.capability);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.deviceUuid != null &&
+                    Object.hasOwnProperty.call(message, "deviceUuid")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 2 =*/ 10)
+                        .string(message.deviceUuid);
+                if (
+                    message.capability != null &&
+                    Object.hasOwnProperty.call(message, "capability")
+                )
+                    writer
+                        .uint32(/* id 2, wireType 2 =*/ 18)
+                        .string(message.capability);
                 return writer;
             };
 
@@ -174,7 +211,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            DeviceControlRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            DeviceControlRequest.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -192,21 +232,24 @@ export const frontend = $root.frontend = (() => {
             DeviceControlRequest.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.devicecontrol.DeviceControlRequest();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.devicecontrol.DeviceControlRequest();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.deviceUuid = reader.string();
                             break;
                         }
-                    case 2: {
+                        case 2: {
                             message.capability = reader.string();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -222,9 +265,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            DeviceControlRequest.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            DeviceControlRequest.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -239,10 +283,16 @@ export const frontend = $root.frontend = (() => {
             DeviceControlRequest.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.deviceUuid != null && message.hasOwnProperty("deviceUuid"))
+                if (
+                    message.deviceUuid != null &&
+                    message.hasOwnProperty("deviceUuid")
+                )
                     if (!$util.isString(message.deviceUuid))
                         return "deviceUuid: string expected";
-                if (message.capability != null && message.hasOwnProperty("capability"))
+                if (
+                    message.capability != null &&
+                    message.hasOwnProperty("capability")
+                )
                     if (!$util.isString(message.capability))
                         return "capability: string expected";
                 return null;
@@ -257,9 +307,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.devicecontrol.DeviceControlRequest} DeviceControlRequest
              */
             DeviceControlRequest.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.devicecontrol.DeviceControlRequest)
+                if (
+                    object instanceof
+                    $root.frontend.devicecontrol.DeviceControlRequest
+                )
                     return object;
-                let message = new $root.frontend.devicecontrol.DeviceControlRequest();
+                let message =
+                    new $root.frontend.devicecontrol.DeviceControlRequest();
                 if (object.deviceUuid != null)
                     message.deviceUuid = String(object.deviceUuid);
                 if (object.capability != null)
@@ -276,17 +330,25 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            DeviceControlRequest.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            DeviceControlRequest.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
                 if (options.defaults) {
                     object.deviceUuid = "";
                     object.capability = "";
                 }
-                if (message.deviceUuid != null && message.hasOwnProperty("deviceUuid"))
+                if (
+                    message.deviceUuid != null &&
+                    message.hasOwnProperty("deviceUuid")
+                )
                     object.deviceUuid = message.deviceUuid;
-                if (message.capability != null && message.hasOwnProperty("capability"))
+                if (
+                    message.capability != null &&
+                    message.hasOwnProperty("capability")
+                )
                     object.capability = message.capability;
                 return object;
             };
@@ -299,7 +361,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             DeviceControlRequest.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -310,18 +375,22 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            DeviceControlRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            DeviceControlRequest.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.devicecontrol.DeviceControlRequest";
+                return (
+                    typeUrlPrefix +
+                    "/frontend.devicecontrol.DeviceControlRequest"
+                );
             };
 
             return DeviceControlRequest;
         })();
 
-        devicecontrol.DeviceControlResponse = (function() {
-
+        devicecontrol.DeviceControlResponse = (function () {
             /**
              * Properties of a DeviceControlResponse.
              * @memberof frontend.devicecontrol
@@ -339,7 +408,11 @@ export const frontend = $root.frontend = (() => {
              */
             function DeviceControlResponse(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -374,10 +447,14 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             DeviceControlResponse.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.result != null && Object.hasOwnProperty.call(message, "result"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).int32(message.result);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.result != null &&
+                    Object.hasOwnProperty.call(message, "result")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 0 =*/ 8)
+                        .int32(message.result);
                 return writer;
             };
 
@@ -390,7 +467,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            DeviceControlResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            DeviceControlResponse.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -408,17 +488,20 @@ export const frontend = $root.frontend = (() => {
             DeviceControlResponse.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.devicecontrol.DeviceControlResponse();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.devicecontrol.DeviceControlResponse();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.result = reader.int32();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -434,9 +517,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            DeviceControlResponse.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            DeviceControlResponse.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -453,11 +537,11 @@ export const frontend = $root.frontend = (() => {
                     return "object expected";
                 if (message.result != null && message.hasOwnProperty("result"))
                     switch (message.result) {
-                    default:
-                        return "result: enum value expected";
-                    case 0:
-                    case 1:
-                        break;
+                        default:
+                            return "result: enum value expected";
+                        case 0:
+                        case 1:
+                            break;
                     }
                 return null;
             };
@@ -471,24 +555,28 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.devicecontrol.DeviceControlResponse} DeviceControlResponse
              */
             DeviceControlResponse.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.devicecontrol.DeviceControlResponse)
+                if (
+                    object instanceof
+                    $root.frontend.devicecontrol.DeviceControlResponse
+                )
                     return object;
-                let message = new $root.frontend.devicecontrol.DeviceControlResponse();
+                let message =
+                    new $root.frontend.devicecontrol.DeviceControlResponse();
                 switch (object.result) {
-                default:
-                    if (typeof object.result === "number") {
-                        message.result = object.result;
+                    default:
+                        if (typeof object.result === "number") {
+                            message.result = object.result;
+                            break;
+                        }
                         break;
-                    }
-                    break;
-                case "UNKNOWN":
-                case 0:
-                    message.result = 0;
-                    break;
-                case "SUCCESS":
-                case 1:
-                    message.result = 1;
-                    break;
+                    case "UNKNOWN":
+                    case 0:
+                        message.result = 0;
+                        break;
+                    case "SUCCESS":
+                    case 1:
+                        message.result = 1;
+                        break;
                 }
                 return message;
             };
@@ -502,14 +590,24 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            DeviceControlResponse.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            DeviceControlResponse.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
                 if (options.defaults)
                     object.result = options.enums === String ? "UNKNOWN" : 0;
                 if (message.result != null && message.hasOwnProperty("result"))
-                    object.result = options.enums === String ? $root.frontend.devicecontrol.DeviceControlResult[message.result] === undefined ? message.result : $root.frontend.devicecontrol.DeviceControlResult[message.result] : message.result;
+                    object.result =
+                        options.enums === String
+                            ? $root.frontend.devicecontrol.DeviceControlResult[
+                                  message.result
+                              ] === undefined
+                                ? message.result
+                                : $root.frontend.devicecontrol
+                                      .DeviceControlResult[message.result]
+                            : message.result;
                 return object;
             };
 
@@ -521,7 +619,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             DeviceControlResponse.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -532,11 +633,16 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            DeviceControlResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            DeviceControlResponse.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.devicecontrol.DeviceControlResponse";
+                return (
+                    typeUrlPrefix +
+                    "/frontend.devicecontrol.DeviceControlResponse"
+                );
             };
 
             return DeviceControlResponse;
@@ -549,18 +655,18 @@ export const frontend = $root.frontend = (() => {
          * @property {number} UNKNOWN=0 UNKNOWN value
          * @property {number} SUCCESS=1 SUCCESS value
          */
-        devicecontrol.DeviceControlResult = (function() {
-            const valuesById = {}, values = Object.create(valuesById);
-            values[valuesById[0] = "UNKNOWN"] = 0;
-            values[valuesById[1] = "SUCCESS"] = 1;
+        devicecontrol.DeviceControlResult = (function () {
+            const valuesById = {},
+                values = Object.create(valuesById);
+            values[(valuesById[0] = "UNKNOWN")] = 0;
+            values[(valuesById[1] = "SUCCESS")] = 1;
             return values;
         })();
 
         return devicecontrol;
     })();
 
-    frontend.types = (function() {
-
+    frontend.types = (function () {
         /**
          * Namespace types.
          * @memberof frontend
@@ -568,8 +674,7 @@ export const frontend = $root.frontend = (() => {
          */
         const types = {};
 
-        types.DeviceCapabilityStatus = (function() {
-
+        types.DeviceCapabilityStatus = (function () {
             /**
              * Properties of a DeviceCapabilityStatus.
              * @memberof frontend.types
@@ -588,7 +693,11 @@ export const frontend = $root.frontend = (() => {
              */
             function DeviceCapabilityStatus(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -631,12 +740,21 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             DeviceCapabilityStatus.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.available != null && Object.hasOwnProperty.call(message, "available"))
-                    writer.uint32(/* id 1, wireType 0 =*/8).bool(message.available);
-                if (message.capability != null && Object.hasOwnProperty.call(message, "capability"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.capability);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.available != null &&
+                    Object.hasOwnProperty.call(message, "available")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 0 =*/ 8)
+                        .bool(message.available);
+                if (
+                    message.capability != null &&
+                    Object.hasOwnProperty.call(message, "capability")
+                )
+                    writer
+                        .uint32(/* id 2, wireType 2 =*/ 18)
+                        .string(message.capability);
                 return writer;
             };
 
@@ -649,7 +767,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            DeviceCapabilityStatus.encodeDelimited = function encodeDelimited(message, writer) {
+            DeviceCapabilityStatus.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -667,21 +788,23 @@ export const frontend = $root.frontend = (() => {
             DeviceCapabilityStatus.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.types.DeviceCapabilityStatus();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message = new $root.frontend.types.DeviceCapabilityStatus();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.available = reader.bool();
                             break;
                         }
-                    case 2: {
+                        case 2: {
                             message.capability = reader.string();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -697,9 +820,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            DeviceCapabilityStatus.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            DeviceCapabilityStatus.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -714,10 +838,16 @@ export const frontend = $root.frontend = (() => {
             DeviceCapabilityStatus.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.available != null && message.hasOwnProperty("available"))
+                if (
+                    message.available != null &&
+                    message.hasOwnProperty("available")
+                )
                     if (typeof message.available !== "boolean")
                         return "available: boolean expected";
-                if (message.capability != null && message.hasOwnProperty("capability"))
+                if (
+                    message.capability != null &&
+                    message.hasOwnProperty("capability")
+                )
                     if (!$util.isString(message.capability))
                         return "capability: string expected";
                 return null;
@@ -732,7 +862,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.types.DeviceCapabilityStatus} DeviceCapabilityStatus
              */
             DeviceCapabilityStatus.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.types.DeviceCapabilityStatus)
+                if (
+                    object instanceof
+                    $root.frontend.types.DeviceCapabilityStatus
+                )
                     return object;
                 let message = new $root.frontend.types.DeviceCapabilityStatus();
                 if (object.available != null)
@@ -751,17 +884,25 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            DeviceCapabilityStatus.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            DeviceCapabilityStatus.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
                 if (options.defaults) {
                     object.available = false;
                     object.capability = "";
                 }
-                if (message.available != null && message.hasOwnProperty("available"))
+                if (
+                    message.available != null &&
+                    message.hasOwnProperty("available")
+                )
                     object.available = message.available;
-                if (message.capability != null && message.hasOwnProperty("capability"))
+                if (
+                    message.capability != null &&
+                    message.hasOwnProperty("capability")
+                )
                     object.capability = message.capability;
                 return object;
             };
@@ -774,7 +915,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             DeviceCapabilityStatus.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -785,7 +929,9 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            DeviceCapabilityStatus.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            DeviceCapabilityStatus.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
@@ -798,8 +944,7 @@ export const frontend = $root.frontend = (() => {
         return types;
     })();
 
-    frontend.registration = (function() {
-
+    frontend.registration = (function () {
         /**
          * Namespace registration.
          * @memberof frontend
@@ -807,8 +952,7 @@ export const frontend = $root.frontend = (() => {
          */
         const registration = {};
 
-        registration.FrontendRegistrationService = (function() {
-
+        registration.FrontendRegistrationService = (function () {
             /**
              * Constructs a new FrontendRegistrationService service.
              * @memberof frontend.registration
@@ -819,11 +963,22 @@ export const frontend = $root.frontend = (() => {
              * @param {boolean} [requestDelimited=false] Whether requests are length-delimited
              * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
              */
-            function FrontendRegistrationService(rpcImpl, requestDelimited, responseDelimited) {
-                $protobuf.rpc.Service.call(this, rpcImpl, requestDelimited, responseDelimited);
+            function FrontendRegistrationService(
+                rpcImpl,
+                requestDelimited,
+                responseDelimited,
+            ) {
+                $protobuf.rpc.Service.call(
+                    this,
+                    rpcImpl,
+                    requestDelimited,
+                    responseDelimited,
+                );
             }
 
-            (FrontendRegistrationService.prototype = Object.create($protobuf.rpc.Service.prototype)).constructor = FrontendRegistrationService;
+            (FrontendRegistrationService.prototype = Object.create(
+                $protobuf.rpc.Service.prototype,
+            )).constructor = FrontendRegistrationService;
 
             /**
              * Creates new FrontendRegistrationService service using the specified rpc implementation.
@@ -835,7 +990,11 @@ export const frontend = $root.frontend = (() => {
              * @param {boolean} [responseDelimited=false] Whether responses are length-delimited
              * @returns {FrontendRegistrationService} RPC service. Useful where requests and/or responses are streamed.
              */
-            FrontendRegistrationService.create = function create(rpcImpl, requestDelimited, responseDelimited) {
+            FrontendRegistrationService.create = function create(
+                rpcImpl,
+                requestDelimited,
+                responseDelimited,
+            ) {
                 return new this(rpcImpl, requestDelimited, responseDelimited);
             };
 
@@ -858,9 +1017,20 @@ export const frontend = $root.frontend = (() => {
              * @returns {undefined}
              * @variation 1
              */
-            Object.defineProperty(FrontendRegistrationService.prototype.register = function register(request, callback) {
-                return this.rpcCall(register, $root.frontend.registration.RegistrationRequest, $root.frontend.registration.RegistrationResponse, request, callback);
-            }, "name", { value: "Register" });
+            Object.defineProperty(
+                (FrontendRegistrationService.prototype.register =
+                    function register(request, callback) {
+                        return this.rpcCall(
+                            register,
+                            $root.frontend.registration.RegistrationRequest,
+                            $root.frontend.registration.RegistrationResponse,
+                            request,
+                            callback,
+                        );
+                    }),
+                "name",
+                { value: "Register" },
+            );
 
             /**
              * Calls Register.
@@ -891,9 +1061,21 @@ export const frontend = $root.frontend = (() => {
              * @returns {undefined}
              * @variation 1
              */
-            Object.defineProperty(FrontendRegistrationService.prototype.getConnectedDevices = function getConnectedDevices(request, callback) {
-                return this.rpcCall(getConnectedDevices, $root.frontend.registration.ConnectedDevicesRequest, $root.frontend.registration.ConnectedDevicesResponse, request, callback);
-            }, "name", { value: "GetConnectedDevices" });
+            Object.defineProperty(
+                (FrontendRegistrationService.prototype.getConnectedDevices =
+                    function getConnectedDevices(request, callback) {
+                        return this.rpcCall(
+                            getConnectedDevices,
+                            $root.frontend.registration.ConnectedDevicesRequest,
+                            $root.frontend.registration
+                                .ConnectedDevicesResponse,
+                            request,
+                            callback,
+                        );
+                    }),
+                "name",
+                { value: "GetConnectedDevices" },
+            );
 
             /**
              * Calls GetConnectedDevices.
@@ -908,8 +1090,7 @@ export const frontend = $root.frontend = (() => {
             return FrontendRegistrationService;
         })();
 
-        registration.RegistrationRequest = (function() {
-
+        registration.RegistrationRequest = (function () {
             /**
              * Properties of a RegistrationRequest.
              * @memberof frontend.registration
@@ -927,7 +1108,11 @@ export const frontend = $root.frontend = (() => {
              */
             function RegistrationRequest(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -962,10 +1147,14 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             RegistrationRequest.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.deviceName != null && Object.hasOwnProperty.call(message, "deviceName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.deviceName);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.deviceName != null &&
+                    Object.hasOwnProperty.call(message, "deviceName")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 2 =*/ 10)
+                        .string(message.deviceName);
                 return writer;
             };
 
@@ -978,7 +1167,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            RegistrationRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            RegistrationRequest.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -996,17 +1188,20 @@ export const frontend = $root.frontend = (() => {
             RegistrationRequest.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.registration.RegistrationRequest();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.registration.RegistrationRequest();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.deviceName = reader.string();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -1022,9 +1217,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            RegistrationRequest.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            RegistrationRequest.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -1039,7 +1235,10 @@ export const frontend = $root.frontend = (() => {
             RegistrationRequest.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.deviceName != null && message.hasOwnProperty("deviceName"))
+                if (
+                    message.deviceName != null &&
+                    message.hasOwnProperty("deviceName")
+                )
                     if (!$util.isString(message.deviceName))
                         return "deviceName: string expected";
                 return null;
@@ -1054,9 +1253,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.registration.RegistrationRequest} RegistrationRequest
              */
             RegistrationRequest.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.registration.RegistrationRequest)
+                if (
+                    object instanceof
+                    $root.frontend.registration.RegistrationRequest
+                )
                     return object;
-                let message = new $root.frontend.registration.RegistrationRequest();
+                let message =
+                    new $root.frontend.registration.RegistrationRequest();
                 if (object.deviceName != null)
                     message.deviceName = String(object.deviceName);
                 return message;
@@ -1072,12 +1275,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} Plain object
              */
             RegistrationRequest.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+                if (!options) options = {};
                 let object = {};
-                if (options.defaults)
-                    object.deviceName = "";
-                if (message.deviceName != null && message.hasOwnProperty("deviceName"))
+                if (options.defaults) object.deviceName = "";
+                if (
+                    message.deviceName != null &&
+                    message.hasOwnProperty("deviceName")
+                )
                     object.deviceName = message.deviceName;
                 return object;
             };
@@ -1090,7 +1294,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             RegistrationRequest.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -1101,18 +1308,21 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            RegistrationRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            RegistrationRequest.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.registration.RegistrationRequest";
+                return (
+                    typeUrlPrefix + "/frontend.registration.RegistrationRequest"
+                );
             };
 
             return RegistrationRequest;
         })();
 
-        registration.RegistrationResponse = (function() {
-
+        registration.RegistrationResponse = (function () {
             /**
              * Properties of a RegistrationResponse.
              * @memberof frontend.registration
@@ -1130,7 +1340,11 @@ export const frontend = $root.frontend = (() => {
              */
             function RegistrationResponse(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -1165,10 +1379,14 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             RegistrationResponse.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.clientId != null && Object.hasOwnProperty.call(message, "clientId"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.clientId);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.clientId != null &&
+                    Object.hasOwnProperty.call(message, "clientId")
+                )
+                    writer
+                        .uint32(/* id 2, wireType 2 =*/ 18)
+                        .string(message.clientId);
                 return writer;
             };
 
@@ -1181,7 +1399,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            RegistrationResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            RegistrationResponse.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -1199,17 +1420,20 @@ export const frontend = $root.frontend = (() => {
             RegistrationResponse.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.registration.RegistrationResponse();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.registration.RegistrationResponse();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 2: {
+                        case 2: {
                             message.clientId = reader.string();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -1225,9 +1449,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            RegistrationResponse.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            RegistrationResponse.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -1242,7 +1467,10 @@ export const frontend = $root.frontend = (() => {
             RegistrationResponse.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                if (
+                    message.clientId != null &&
+                    message.hasOwnProperty("clientId")
+                )
                     if (!$util.isString(message.clientId))
                         return "clientId: string expected";
                 return null;
@@ -1257,9 +1485,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.registration.RegistrationResponse} RegistrationResponse
              */
             RegistrationResponse.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.registration.RegistrationResponse)
+                if (
+                    object instanceof
+                    $root.frontend.registration.RegistrationResponse
+                )
                     return object;
-                let message = new $root.frontend.registration.RegistrationResponse();
+                let message =
+                    new $root.frontend.registration.RegistrationResponse();
                 if (object.clientId != null)
                     message.clientId = String(object.clientId);
                 return message;
@@ -1274,13 +1506,17 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            RegistrationResponse.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            RegistrationResponse.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
-                if (options.defaults)
-                    object.clientId = "";
-                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                if (options.defaults) object.clientId = "";
+                if (
+                    message.clientId != null &&
+                    message.hasOwnProperty("clientId")
+                )
                     object.clientId = message.clientId;
                 return object;
             };
@@ -1293,7 +1529,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             RegistrationResponse.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -1304,18 +1543,22 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            RegistrationResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            RegistrationResponse.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.registration.RegistrationResponse";
+                return (
+                    typeUrlPrefix +
+                    "/frontend.registration.RegistrationResponse"
+                );
             };
 
             return RegistrationResponse;
         })();
 
-        registration.ConnectedDevicesRequest = (function() {
-
+        registration.ConnectedDevicesRequest = (function () {
             /**
              * Properties of a ConnectedDevicesRequest.
              * @memberof frontend.registration
@@ -1333,7 +1576,11 @@ export const frontend = $root.frontend = (() => {
              */
             function ConnectedDevicesRequest(properties) {
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -1368,10 +1615,14 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             ConnectedDevicesRequest.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.clientId != null && Object.hasOwnProperty.call(message, "clientId"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.clientId);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.clientId != null &&
+                    Object.hasOwnProperty.call(message, "clientId")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 2 =*/ 10)
+                        .string(message.clientId);
                 return writer;
             };
 
@@ -1384,7 +1635,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            ConnectedDevicesRequest.encodeDelimited = function encodeDelimited(message, writer) {
+            ConnectedDevicesRequest.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -1402,17 +1656,20 @@ export const frontend = $root.frontend = (() => {
             ConnectedDevicesRequest.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.registration.ConnectedDevicesRequest();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.registration.ConnectedDevicesRequest();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.clientId = reader.string();
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -1428,9 +1685,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            ConnectedDevicesRequest.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            ConnectedDevicesRequest.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -1445,7 +1703,10 @@ export const frontend = $root.frontend = (() => {
             ConnectedDevicesRequest.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                if (
+                    message.clientId != null &&
+                    message.hasOwnProperty("clientId")
+                )
                     if (!$util.isString(message.clientId))
                         return "clientId: string expected";
                 return null;
@@ -1460,9 +1721,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.registration.ConnectedDevicesRequest} ConnectedDevicesRequest
              */
             ConnectedDevicesRequest.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.registration.ConnectedDevicesRequest)
+                if (
+                    object instanceof
+                    $root.frontend.registration.ConnectedDevicesRequest
+                )
                     return object;
-                let message = new $root.frontend.registration.ConnectedDevicesRequest();
+                let message =
+                    new $root.frontend.registration.ConnectedDevicesRequest();
                 if (object.clientId != null)
                     message.clientId = String(object.clientId);
                 return message;
@@ -1477,13 +1742,17 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            ConnectedDevicesRequest.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            ConnectedDevicesRequest.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
-                if (options.defaults)
-                    object.clientId = "";
-                if (message.clientId != null && message.hasOwnProperty("clientId"))
+                if (options.defaults) object.clientId = "";
+                if (
+                    message.clientId != null &&
+                    message.hasOwnProperty("clientId")
+                )
                     object.clientId = message.clientId;
                 return object;
             };
@@ -1496,7 +1765,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             ConnectedDevicesRequest.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -1507,18 +1779,22 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            ConnectedDevicesRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            ConnectedDevicesRequest.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.registration.ConnectedDevicesRequest";
+                return (
+                    typeUrlPrefix +
+                    "/frontend.registration.ConnectedDevicesRequest"
+                );
             };
 
             return ConnectedDevicesRequest;
         })();
 
-        registration.ConnectedDevicesResponse = (function() {
-
+        registration.ConnectedDevicesResponse = (function () {
             /**
              * Properties of a ConnectedDevicesResponse.
              * @memberof frontend.registration
@@ -1537,7 +1813,11 @@ export const frontend = $root.frontend = (() => {
             function ConnectedDevicesResponse(properties) {
                 this.devices = [];
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -1572,11 +1852,13 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             ConnectedDevicesResponse.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
+                if (!writer) writer = $Writer.create();
                 if (message.devices != null && message.devices.length)
                     for (let i = 0; i < message.devices.length; ++i)
-                        $root.frontend.registration.Device.encode(message.devices[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+                        $root.frontend.registration.Device.encode(
+                            message.devices[i],
+                            writer.uint32(/* id 1, wireType 2 =*/ 10).fork(),
+                        ).ldelim();
                 return writer;
             };
 
@@ -1589,7 +1871,10 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.Writer} [writer] Writer to encode to
              * @returns {$protobuf.Writer} Writer
              */
-            ConnectedDevicesResponse.encodeDelimited = function encodeDelimited(message, writer) {
+            ConnectedDevicesResponse.encodeDelimited = function encodeDelimited(
+                message,
+                writer,
+            ) {
                 return this.encode(message, writer).ldelim();
             };
 
@@ -1607,19 +1892,27 @@ export const frontend = $root.frontend = (() => {
             ConnectedDevicesResponse.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.registration.ConnectedDevicesResponse();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message =
+                        new $root.frontend.registration.ConnectedDevicesResponse();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             if (!(message.devices && message.devices.length))
                                 message.devices = [];
-                            message.devices.push($root.frontend.registration.Device.decode(reader, reader.uint32()));
+                            message.devices.push(
+                                $root.frontend.registration.Device.decode(
+                                    reader,
+                                    reader.uint32(),
+                                ),
+                            );
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -1635,9 +1928,10 @@ export const frontend = $root.frontend = (() => {
              * @throws {Error} If the payload is not a reader or valid buffer
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
-            ConnectedDevicesResponse.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+            ConnectedDevicesResponse.decodeDelimited = function decodeDelimited(
+                reader,
+            ) {
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -1652,13 +1946,17 @@ export const frontend = $root.frontend = (() => {
             ConnectedDevicesResponse.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.devices != null && message.hasOwnProperty("devices")) {
+                if (
+                    message.devices != null &&
+                    message.hasOwnProperty("devices")
+                ) {
                     if (!Array.isArray(message.devices))
                         return "devices: array expected";
                     for (let i = 0; i < message.devices.length; ++i) {
-                        let error = $root.frontend.registration.Device.verify(message.devices[i]);
-                        if (error)
-                            return "devices." + error;
+                        let error = $root.frontend.registration.Device.verify(
+                            message.devices[i],
+                        );
+                        if (error) return "devices." + error;
                     }
                 }
                 return null;
@@ -1673,17 +1971,28 @@ export const frontend = $root.frontend = (() => {
              * @returns {frontend.registration.ConnectedDevicesResponse} ConnectedDevicesResponse
              */
             ConnectedDevicesResponse.fromObject = function fromObject(object) {
-                if (object instanceof $root.frontend.registration.ConnectedDevicesResponse)
+                if (
+                    object instanceof
+                    $root.frontend.registration.ConnectedDevicesResponse
+                )
                     return object;
-                let message = new $root.frontend.registration.ConnectedDevicesResponse();
+                let message =
+                    new $root.frontend.registration.ConnectedDevicesResponse();
                 if (object.devices) {
                     if (!Array.isArray(object.devices))
-                        throw TypeError(".frontend.registration.ConnectedDevicesResponse.devices: array expected");
+                        throw TypeError(
+                            ".frontend.registration.ConnectedDevicesResponse.devices: array expected",
+                        );
                     message.devices = [];
                     for (let i = 0; i < object.devices.length; ++i) {
                         if (typeof object.devices[i] !== "object")
-                            throw TypeError(".frontend.registration.ConnectedDevicesResponse.devices: object expected");
-                        message.devices[i] = $root.frontend.registration.Device.fromObject(object.devices[i]);
+                            throw TypeError(
+                                ".frontend.registration.ConnectedDevicesResponse.devices: object expected",
+                            );
+                        message.devices[i] =
+                            $root.frontend.registration.Device.fromObject(
+                                object.devices[i],
+                            );
                     }
                 }
                 return message;
@@ -1698,16 +2007,21 @@ export const frontend = $root.frontend = (() => {
              * @param {$protobuf.IConversionOptions} [options] Conversion options
              * @returns {Object.<string,*>} Plain object
              */
-            ConnectedDevicesResponse.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+            ConnectedDevicesResponse.toObject = function toObject(
+                message,
+                options,
+            ) {
+                if (!options) options = {};
                 let object = {};
-                if (options.arrays || options.defaults)
-                    object.devices = [];
+                if (options.arrays || options.defaults) object.devices = [];
                 if (message.devices && message.devices.length) {
                     object.devices = [];
                     for (let j = 0; j < message.devices.length; ++j)
-                        object.devices[j] = $root.frontend.registration.Device.toObject(message.devices[j], options);
+                        object.devices[j] =
+                            $root.frontend.registration.Device.toObject(
+                                message.devices[j],
+                                options,
+                            );
                 }
                 return object;
             };
@@ -1720,7 +2034,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             ConnectedDevicesResponse.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -1731,18 +2048,22 @@ export const frontend = $root.frontend = (() => {
              * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
              * @returns {string} The default type url
              */
-            ConnectedDevicesResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+            ConnectedDevicesResponse.getTypeUrl = function getTypeUrl(
+                typeUrlPrefix,
+            ) {
                 if (typeUrlPrefix === undefined) {
                     typeUrlPrefix = "type.googleapis.com";
                 }
-                return typeUrlPrefix + "/frontend.registration.ConnectedDevicesResponse";
+                return (
+                    typeUrlPrefix +
+                    "/frontend.registration.ConnectedDevicesResponse"
+                );
             };
 
             return ConnectedDevicesResponse;
         })();
 
-        registration.Device = (function() {
-
+        registration.Device = (function () {
             /**
              * Properties of a Device.
              * @memberof frontend.registration
@@ -1763,7 +2084,11 @@ export const frontend = $root.frontend = (() => {
             function Device(properties) {
                 this.capabilities = [];
                 if (properties)
-                    for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    for (
+                        let keys = Object.keys(properties), i = 0;
+                        i < keys.length;
+                        ++i
+                    )
                         if (properties[keys[i]] != null)
                             this[keys[i]] = properties[keys[i]];
             }
@@ -1814,15 +2139,27 @@ export const frontend = $root.frontend = (() => {
              * @returns {$protobuf.Writer} Writer
              */
             Device.encode = function encode(message, writer) {
-                if (!writer)
-                    writer = $Writer.create();
-                if (message.deviceName != null && Object.hasOwnProperty.call(message, "deviceName"))
-                    writer.uint32(/* id 1, wireType 2 =*/10).string(message.deviceName);
-                if (message.deviceUuid != null && Object.hasOwnProperty.call(message, "deviceUuid"))
-                    writer.uint32(/* id 2, wireType 2 =*/18).string(message.deviceUuid);
+                if (!writer) writer = $Writer.create();
+                if (
+                    message.deviceName != null &&
+                    Object.hasOwnProperty.call(message, "deviceName")
+                )
+                    writer
+                        .uint32(/* id 1, wireType 2 =*/ 10)
+                        .string(message.deviceName);
+                if (
+                    message.deviceUuid != null &&
+                    Object.hasOwnProperty.call(message, "deviceUuid")
+                )
+                    writer
+                        .uint32(/* id 2, wireType 2 =*/ 18)
+                        .string(message.deviceUuid);
                 if (message.capabilities != null && message.capabilities.length)
                     for (let i = 0; i < message.capabilities.length; ++i)
-                        $root.frontend.types.DeviceCapabilityStatus.encode(message.capabilities[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                        $root.frontend.types.DeviceCapabilityStatus.encode(
+                            message.capabilities[i],
+                            writer.uint32(/* id 3, wireType 2 =*/ 26).fork(),
+                        ).ldelim();
                 return writer;
             };
 
@@ -1853,27 +2190,39 @@ export const frontend = $root.frontend = (() => {
             Device.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                let end = length === undefined ? reader.len : reader.pos + length, message = new $root.frontend.registration.Device();
+                let end =
+                        length === undefined ? reader.len : reader.pos + length,
+                    message = new $root.frontend.registration.Device();
                 while (reader.pos < end) {
                     let tag = reader.uint32();
                     switch (tag >>> 3) {
-                    case 1: {
+                        case 1: {
                             message.deviceName = reader.string();
                             break;
                         }
-                    case 2: {
+                        case 2: {
                             message.deviceUuid = reader.string();
                             break;
                         }
-                    case 3: {
-                            if (!(message.capabilities && message.capabilities.length))
+                        case 3: {
+                            if (
+                                !(
+                                    message.capabilities &&
+                                    message.capabilities.length
+                                )
+                            )
                                 message.capabilities = [];
-                            message.capabilities.push($root.frontend.types.DeviceCapabilityStatus.decode(reader, reader.uint32()));
+                            message.capabilities.push(
+                                $root.frontend.types.DeviceCapabilityStatus.decode(
+                                    reader,
+                                    reader.uint32(),
+                                ),
+                            );
                             break;
                         }
-                    default:
-                        reader.skipType(tag & 7);
-                        break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
                     }
                 }
                 return message;
@@ -1890,8 +2239,7 @@ export const frontend = $root.frontend = (() => {
              * @throws {$protobuf.util.ProtocolError} If required fields are missing
              */
             Device.decodeDelimited = function decodeDelimited(reader) {
-                if (!(reader instanceof $Reader))
-                    reader = new $Reader(reader);
+                if (!(reader instanceof $Reader)) reader = new $Reader(reader);
                 return this.decode(reader, reader.uint32());
             };
 
@@ -1906,19 +2254,30 @@ export const frontend = $root.frontend = (() => {
             Device.verify = function verify(message) {
                 if (typeof message !== "object" || message === null)
                     return "object expected";
-                if (message.deviceName != null && message.hasOwnProperty("deviceName"))
+                if (
+                    message.deviceName != null &&
+                    message.hasOwnProperty("deviceName")
+                )
                     if (!$util.isString(message.deviceName))
                         return "deviceName: string expected";
-                if (message.deviceUuid != null && message.hasOwnProperty("deviceUuid"))
+                if (
+                    message.deviceUuid != null &&
+                    message.hasOwnProperty("deviceUuid")
+                )
                     if (!$util.isString(message.deviceUuid))
                         return "deviceUuid: string expected";
-                if (message.capabilities != null && message.hasOwnProperty("capabilities")) {
+                if (
+                    message.capabilities != null &&
+                    message.hasOwnProperty("capabilities")
+                ) {
                     if (!Array.isArray(message.capabilities))
                         return "capabilities: array expected";
                     for (let i = 0; i < message.capabilities.length; ++i) {
-                        let error = $root.frontend.types.DeviceCapabilityStatus.verify(message.capabilities[i]);
-                        if (error)
-                            return "capabilities." + error;
+                        let error =
+                            $root.frontend.types.DeviceCapabilityStatus.verify(
+                                message.capabilities[i],
+                            );
+                        if (error) return "capabilities." + error;
                     }
                 }
                 return null;
@@ -1942,12 +2301,19 @@ export const frontend = $root.frontend = (() => {
                     message.deviceUuid = String(object.deviceUuid);
                 if (object.capabilities) {
                     if (!Array.isArray(object.capabilities))
-                        throw TypeError(".frontend.registration.Device.capabilities: array expected");
+                        throw TypeError(
+                            ".frontend.registration.Device.capabilities: array expected",
+                        );
                     message.capabilities = [];
                     for (let i = 0; i < object.capabilities.length; ++i) {
                         if (typeof object.capabilities[i] !== "object")
-                            throw TypeError(".frontend.registration.Device.capabilities: object expected");
-                        message.capabilities[i] = $root.frontend.types.DeviceCapabilityStatus.fromObject(object.capabilities[i]);
+                            throw TypeError(
+                                ".frontend.registration.Device.capabilities: object expected",
+                            );
+                        message.capabilities[i] =
+                            $root.frontend.types.DeviceCapabilityStatus.fromObject(
+                                object.capabilities[i],
+                            );
                     }
                 }
                 return message;
@@ -1963,8 +2329,7 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} Plain object
              */
             Device.toObject = function toObject(message, options) {
-                if (!options)
-                    options = {};
+                if (!options) options = {};
                 let object = {};
                 if (options.arrays || options.defaults)
                     object.capabilities = [];
@@ -1972,14 +2337,24 @@ export const frontend = $root.frontend = (() => {
                     object.deviceName = "";
                     object.deviceUuid = "";
                 }
-                if (message.deviceName != null && message.hasOwnProperty("deviceName"))
+                if (
+                    message.deviceName != null &&
+                    message.hasOwnProperty("deviceName")
+                )
                     object.deviceName = message.deviceName;
-                if (message.deviceUuid != null && message.hasOwnProperty("deviceUuid"))
+                if (
+                    message.deviceUuid != null &&
+                    message.hasOwnProperty("deviceUuid")
+                )
                     object.deviceUuid = message.deviceUuid;
                 if (message.capabilities && message.capabilities.length) {
                     object.capabilities = [];
                     for (let j = 0; j < message.capabilities.length; ++j)
-                        object.capabilities[j] = $root.frontend.types.DeviceCapabilityStatus.toObject(message.capabilities[j], options);
+                        object.capabilities[j] =
+                            $root.frontend.types.DeviceCapabilityStatus.toObject(
+                                message.capabilities[j],
+                                options,
+                            );
                 }
                 return object;
             };
@@ -1992,7 +2367,10 @@ export const frontend = $root.frontend = (() => {
              * @returns {Object.<string,*>} JSON object
              */
             Device.prototype.toJSON = function toJSON() {
-                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                return this.constructor.toObject(
+                    this,
+                    $protobuf.util.toJSONOptions,
+                );
             };
 
             /**
@@ -2017,6 +2395,6 @@ export const frontend = $root.frontend = (() => {
     })();
 
     return frontend;
-})();
+})());
 
 export { $root as default };

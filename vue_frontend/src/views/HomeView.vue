@@ -1,16 +1,25 @@
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { registerSelf } from "@/backend_calls/registration"
+import { onMounted, ref } from "vue";
+import { useDeviceIdStore } from "@/stores/deviceIdStore";
+
+const deviceIdStore = useDeviceIdStore();
 
 onMounted(async () => {
-    //todo: add to a definitions file
-    let server_ip = "127.0.0.1:50052";
-    let response = await registerSelf("testDevice");
-    console.log(response);
+    if (!deviceIdStore.device_id_valid) {
+        deviceIdStore.registerSelf();
+    }
 });
 </script>
 
 <template>
+    <div>
+        <p v-show="deviceIdStore.device_id_valid">
+            Your Device Id: {{ deviceIdStore.device_id }}
+        </p>
+        <p v-show="!deviceIdStore.device_id_valid">
+            Device Id was unable to be fetched
+        </p>
+    </div>
     <div class="connected-devices">
         <h1>Your Connected Devices:</h1>
         <div class="connected-devices-container">
