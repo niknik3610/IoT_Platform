@@ -1,4 +1,4 @@
-use std::{sync::Arc, future::IntoFuture};
+use std::{future::IntoFuture, sync::Arc};
 
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
@@ -10,11 +10,11 @@ use registration::{
     registration_service::registration_service_server,
 };
 use rsa::pkcs1v15::SigningKey;
-use tokio::signal::unix::{signal, SignalKind};
-use tonic::transport::Server;
-use futures_util::FutureExt;
 
-use web_json_translation::{json_registration, json_translation::TranslationClientState};
+use futures_util::FutureExt;
+use tonic::transport::Server;
+
+use web_json_translation::json_registration;
 
 pub mod certificate_signing;
 pub mod device;
@@ -80,7 +80,7 @@ async fn main() -> anyhow::Result<()> {
         cache_valid.clone(),
     );
     let device_control_service =
-        device_control_service::FrontendDeviceControlHandler::new(events.clone()); 
+        device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
     let grpc_server = Server::builder()
         .add_service(registration_service_server::RegistrationServiceServer::new(
@@ -101,17 +101,13 @@ async fn main() -> anyhow::Result<()> {
         )
         .serve_with_shutdown(addr, tokio::signal::ctrl_c().map(drop));
 
-    let grpc_handle = tokio::spawn(async move {
-        grpc_server.await
-    });
+    let grpc_handle = tokio::spawn(async move { grpc_server.await });
 
     if args.json_frontend {
         match run_json_frontend().await {
             Ok(json_server) => {
-                tokio::spawn(async move {
-                    json_server.await
-                });
-            },
+                tokio::spawn(async move { json_server.await });
+            }
             Err(e) => {
                 eprintln!("Error when starting JSON server:");
                 eprintln!("{e}");
@@ -121,7 +117,7 @@ async fn main() -> anyhow::Result<()> {
 
     match grpc_handle.into_future().await {
         Ok(_) => println!("The GRPC Server excited Succesfully"),
-        Err(e) => { 
+        Err(e) => {
             eprintln!("There was an error while running the GRPC Server:");
             eprintln!("{e}");
         }
@@ -156,6 +152,6 @@ async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
     .run();
 
     println!("Successfully Started JSON API Layer on {ADDRESS}");
-    
+
     return Ok(result);
 }

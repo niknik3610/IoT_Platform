@@ -11,8 +11,7 @@ pub mod json_registration_service {
 }
 
 #[actix_web::options("/frotend/registration")]
-pub async fn json_registration_options(
-) -> impl Responder {
+pub async fn json_registration_options() -> impl Responder {
     return HttpResponse::Ok().body("");
 }
 
