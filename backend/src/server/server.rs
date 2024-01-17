@@ -10,7 +10,10 @@ use registration::{
     registration_service::registration_service_server,
 };
 use rsa::pkcs1v15::SigningKey;
+use tokio::signal::unix::{signal, SignalKind};
 use tonic::transport::Server;
+use futures_util::FutureExt;
+
 use web_json_translation::{json_registration, json_translation::TranslationClientState};
 
 pub mod certificate_signing;
@@ -96,7 +99,7 @@ async fn main() -> anyhow::Result<()> {
                 device_control_service,
             ),
         )
-        .serve(addr);
+        .serve_with_shutdown(addr, tokio::signal::ctrl_c().map(drop));
 
     let grpc_handle = tokio::spawn(async move {
         grpc_server.await
@@ -115,6 +118,7 @@ async fn main() -> anyhow::Result<()> {
             }
         };
     }
+
     match grpc_handle.into_future().await {
         Ok(_) => println!("The GRPC Server excited Succesfully"),
         Err(e) => { 
