@@ -1,6 +1,6 @@
 syntax = "proto3";
 package frontend.registration;
-import "frontend_types.proto";
+import "frontendTypes.proto";
 
 service FrontendRegistrationService {
     rpc Register(RegistrationRequest) returns (RegistrationResponse);

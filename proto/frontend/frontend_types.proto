@@ -1,7 +1,0 @@
-syntax = "proto3";
-package frontend.types;
-
-message DeviceCapabilityStatus {
-    bool available = 1;
-    string capability = 2;
-}
