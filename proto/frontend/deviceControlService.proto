@@ -1,6 +1,5 @@
 syntax = "proto3";
 package frontend.devicecontrol;
-import "frontend_types.proto";
 
 service FrontendDeviceControlService{
     rpc ControlDevice(DeviceControlRequest) returns (DeviceControlResponse);

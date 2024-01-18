@@ -103,6 +103,7 @@ impl RegistrationService for ClientRegistrationHandler {
 }
 
 pub mod frontend_registration_service {
+
     tonic::include_proto!("frontend.registration");
 }
 

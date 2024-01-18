@@ -17,6 +17,7 @@ Required packages:
 ```
 sudo apt install protobuf-compiler
 ```
+- Another required package when using the web interface is mkcert, which is used by GRPC to communicate between the browser and server: view installation instructions [here](https://github.com/FiloSottile/mkcert#installation). If on linux, I personally recommend using the pre-built binary.
 
 ## Project Layout
     ├─ backend/           Rust Files, used in client, server and frontend backend
@@ -39,4 +40,5 @@ sudo apt install protobuf-compiler
 
 
 ## Possible future additions
-- Using [Clap](https://docs.rs/clap/latest/clap/) for command line arguments
+Nothing here ATM
+
