@@ -4,8 +4,6 @@ use crate::types::types;
 use crate::web_json_translation::json_translation::TranslationClientState;
 
 pub mod json_registration_service {
-    use serde::Deserialize;
-    use serde::Serialize;
 
     tonic::include_proto!("frontend.registration");
 }

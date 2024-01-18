@@ -103,8 +103,6 @@ impl RegistrationService for ClientRegistrationHandler {
 }
 
 pub mod frontend_registration_service {
-    use serde::Deserialize;
-    use serde::Serialize;
 
     tonic::include_proto!("frontend.registration");
 }
