@@ -1,0 +1,20 @@
+syntax = "proto3";
+package frontend.devicecontrol;
+
+service FrontendDeviceControlService{
+    rpc ControlDevice(DeviceControlRequest) returns (DeviceControlResponse);
+};
+
+message DeviceControlRequest{
+    string device_uuid = 1;
+    string capability = 2;
+}
+
+message DeviceControlResponse{
+    DeviceControlResult result = 1;
+}
+
+enum DeviceControlResult {
+    UNKNOWN = 0;
+    SUCCESS = 1;
+}
