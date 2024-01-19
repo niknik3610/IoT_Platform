@@ -1,4 +1,2 @@
 /backend/target
-
-/vue_frontend/src/generated/generated.js
-/vue_frontend/src/generated/generated.d.ts
+/vue_frontend/src/generated

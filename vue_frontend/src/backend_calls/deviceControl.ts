@@ -1,15 +1,17 @@
-import { API_GET_CONNECTED_DEVICES_ADDRESS } from "@/api_call_links";
+import { API_DEVICE_CONTROL_ADDRESS } from "@/api_call_links";
 import { frontend } from "@/generated/generated";
 import { errAsync, okAsync, type Result } from "neverthrow";
 
-export async function getConnectedDevices(
-    deviceId: string,
-): Promise<Result<frontend.registration.ConnectedDevicesResponse, Error>> {
-    const jsonRequest = frontend.registration.ConnectedDevicesRequest.create({
-        client_id: deviceId,
+export async function ControlDevice(
+    to_control_uuid: string,
+    capability_to_control: string,
+): Promise<Result<frontend.devicecontrol.DeviceControlResponse, Error>> {
+    const jsonRequest = frontend.devicecontrol.DeviceControlRequest.create({
+        device_uuid: to_control_uuid,
+        capability: capability_to_control
     }).toJSON();
 
-    const response = await fetch(API_GET_CONNECTED_DEVICES_ADDRESS, {
+    const response = await fetch(API_DEVICE_CONTROL_ADDRESS, {
         method: "POST",
         body: JSON.stringify(jsonRequest),
         headers: {
@@ -18,7 +20,7 @@ export async function getConnectedDevices(
     });
 
     try {
-        const parsed_response: frontend.registration.ConnectedDevicesResponse =
+        const parsed_response: frontend.devicecontrol.DeviceControlResponse =
             await JSON.parse(await response.text());
         console.log(parsed_response);
         return okAsync(parsed_response);
