@@ -8,7 +8,7 @@ import { frontend } from "@/generated/generated";
 const deviceIdStore = useDeviceIdStore();
 const connectedDevices = ref<frontend.registration.Device[]>();
 
-const REFRESH_TIMING_MS = 5000;
+const REFRESH_TIMING_MS = 200;
 
 onMounted(async () => {
     if (!deviceIdStore.device_id_valid) {
@@ -84,6 +84,7 @@ async function proccessConnectedDevices(): Promise<
                 v-bind:key="device.device_name"
                 :deviceName="device.device_name"
                 :capabilities="device.capabilities"
+                :deviceUuid="device.device_uuid"
             />
         </div>
     </div>

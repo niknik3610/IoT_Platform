@@ -2,7 +2,7 @@ import { API_DEVICE_CONTROL_ADDRESS } from "@/api_call_links";
 import { frontend } from "@/generated/generated";
 import { errAsync, okAsync, type Result } from "neverthrow";
 
-export async function ControlDevice(
+export async function controlDevice(
     to_control_uuid: string,
     capability_to_control: string,
 ): Promise<Result<frontend.devicecontrol.DeviceControlResponse, Error>> {

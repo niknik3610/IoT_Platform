@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { controlDevice } from "@/backend_calls/deviceControl";
 import { frontend } from "@/generated/generated";
 import { onMounted, ref, watch } from "vue";
 
@@ -11,6 +12,10 @@ const props = defineProps({
         required: true,
         type: Array<frontend.types.DeviceCapabilityStatus>,
     },
+    deviceUuid: {
+        required: true,
+        type: String,
+    }
 });
 
 const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([]);
@@ -37,6 +42,16 @@ async function calculateActiveCapabilities(
 
     return activeCapilities;
 }
+
+async function activateCapability(capability: string) {
+    let result = await controlDevice(props.deviceUuid, capability);
+    if (result.isOk()) {
+        console.log(`${capability} activated succesfully`);
+    }
+    else if (result.isErr()) {
+        console.error(`${props.deviceName} had error: ${result.error} while trying to activate capability ${capability}`);
+    }
+}
 </script>
 
 <template>
@@ -47,7 +62,7 @@ async function calculateActiveCapabilities(
             v-bind:key="capability.capability"
             class="button-container"
         >
-            <button @click="() => {}">{{ capability.capability }}</button>
+            <button @click="() => activateCapability(capability.capability)">{{ capability.capability }}</button>
         </div>
     </div>
 </template>

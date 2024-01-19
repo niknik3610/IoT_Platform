@@ -148,7 +148,7 @@ async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
         App::new()
             .app_data(web::Data::new(json_state.clone()))
             .wrap(cors)
-            .wrap(actix_web::middleware::Logger::default()) //todo: make optional
+            // .wrap(actix_web::middleware::Logger::default()) //todo: make optional
             .service(json_registration::json_registration)
             .service(json_registration::json_registration_options)
             .service(json_get_devices::json_get_connected_devices)
