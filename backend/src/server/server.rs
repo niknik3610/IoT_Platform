@@ -60,6 +60,7 @@ async fn main() -> anyhow::Result<()> {
 
     let signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
+    let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
     let signing_service = certificate_signing::CertificateSigningService::new(signing_key);
     let registration_service = registration::ClientRegistrationHandler::new(
         connected_devices.clone(),
@@ -67,19 +68,19 @@ async fn main() -> anyhow::Result<()> {
         signing_service,
         private_key.to_public_key(),
         connected_device_uuids.clone(),
+        frontend_cache_valid.clone(),
     );
 
     let events = ThreadSafeMutable::default();
-    let cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
     let polling_service = polling::PollingHandler::new(
         connected_devices.clone(),
         events.clone(),
-        cache_valid.clone(),
+        frontend_cache_valid.clone(),
     );
     let frontend_registration_service = registration::FrontendRegistrationHandler::new(
         connected_devices.clone(),
         connected_device_uuids.clone(),
-        cache_valid.clone(),
+        frontend_cache_valid.clone(),
     );
     let device_control_service =
         device_control_service::FrontendDeviceControlHandler::new(events.clone());
