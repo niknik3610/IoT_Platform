@@ -3,10 +3,10 @@ import { onMounted, ref } from "vue";
 import { useDeviceIdStore } from "@/stores/deviceIdStore";
 import { getConnectedDevices } from "@/backend_calls/getConnectedDevices";
 import { errAsync, okAsync, type Result } from "neverthrow";
-import { RegistrationTypes } from "@/types"
+import { frontend } from "@/generated/generated";
 
 const deviceIdStore = useDeviceIdStore();
-const connectedDevices = ref<RegistrationTypes.ConnectedDevice[]>();
+const connectedDevices = ref<frontend.registration.Device[]>();
 
 onMounted(async () => {
     if (!deviceIdStore.device_id_valid) {
@@ -21,7 +21,6 @@ onMounted(async () => {
     proccessConnectedDevices().then((result) => {
         if (result.isOk()) {
             connectedDevices.value = result.value;
-            console.log(connectedDevices.value[0]);
         }
         else if (result.isErr()) {
             console.error(result.error.message);
@@ -30,20 +29,19 @@ onMounted(async () => {
     });
 });
 
-async function proccessConnectedDevices(): Promise<Result<RegistrationTypes.ConnectedDevice[], Error>> {
+async function proccessConnectedDevices(): Promise<Result<frontend.registration.Device[], Error>> {
     let response = await getConnectedDevices(deviceIdStore.device_id);
 
     if (response.isOk()) {
-        let parsedDevices = response.value.devices.map((device) => new RegistrationTypes.ConnectedDevice(
-        device.device_name!,
-        device.capabilities!.map((capability) => {
-            return capability.capability!;
-        })));
-        return okAsync(parsedDevices);
+        if (response.value.devices.length === 0) {
+            return okAsync([]);
+        }
+        return okAsync(response.value.devices.map((device) => {
+            return new frontend.registration.Device(device);
+        }));
     }
     return errAsync(new Error(response.error.message));
 }
-
 </script>
 
 <template>
@@ -57,13 +55,16 @@ async function proccessConnectedDevices(): Promise<Result<RegistrationTypes.Conn
     </div>
     <div class="connected-devices">
         <h1>Your Connected Devices:</h1>
-        <div v-for="device in connectedDevices">
-            <p>device name: {{device.name}}</p>
-            <p>device capabilities:</p>
-            <p v-for="capability in device.capabilities">{{capability}}</p>
-        </div>
+        <!-- <div v-for="device in connectedDevices"> -->
+        <!--     <p>device name: {{device.name}}</p> -->
+        <!--     <p>device capabilities:</p> -->
+        <!--     <p v-for="capability in device.capabilities">{{capability}}</p> -->
+        <!-- </div> -->
         <div class="connected-devices-container">
-            <BasicLampControl deviceName="Test Lamp Raspberry Pi 1" />
+            <GenericIotDevice v-for="device in connectedDevices" v-bind:key="device.device_name"
+            :deviceName="device.device_name" 
+            :capabilities="device.capabilities" 
+            />
         </div>
     </div>
 </template>
