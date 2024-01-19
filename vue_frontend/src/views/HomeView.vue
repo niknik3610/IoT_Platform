@@ -8,6 +8,8 @@ import { frontend } from "@/generated/generated";
 const deviceIdStore = useDeviceIdStore();
 const connectedDevices = ref<frontend.registration.Device[]>();
 
+const REFRESH_TIMING_MS = 5000;
+
 onMounted(async () => {
     if (!deviceIdStore.device_id_valid) {
         await deviceIdStore.registerSelf();
@@ -17,16 +19,30 @@ onMounted(async () => {
         console.error("device_id invalid");
         return;
     }
-    
-    proccessConnectedDevices().then((result) => {
+
+    let result = await proccessConnectedDevices();
+        if (result.isOk()) {
+        connectedDevices.value = result.value;
+    }
+    else if (result.isErr()) {
+        console.error(result.error.message);
+        //todo: add proper error message here
+        connectedDevices.value = [];
+    }
+
+    //device list refreshes every x seconds
+    setInterval(async () => {
+        let result = await proccessConnectedDevices();
         if (result.isOk()) {
             connectedDevices.value = result.value;
+            console.log("refreshed devices");
         }
         else if (result.isErr()) {
             console.error(result.error.message);
+            //todo: add proper error message here
+            connectedDevices.value = [];
         }
-        return [];
-    });
+    }, REFRESH_TIMING_MS);
 });
 
 async function proccessConnectedDevices(): Promise<Result<frontend.registration.Device[], Error>> {
