@@ -6,12 +6,12 @@ use crate::{
 };
 
 #[actix_web::options("/frontend/get_connected_devices")]
-pub async fn json_registration_options() -> impl Responder {
+pub async fn json_get_connected_devices_options() -> impl Responder {
     return HttpResponse::Ok().body("");
 }
 
 #[actix_web::post("/frontend/get_connected_devices")]
-pub async fn get_connected_devices(
+pub async fn json_get_connected_devices(
     req_body: String,
     state: actix_web::web::Data<TranslationClientState>,
 ) -> impl Responder {

@@ -16,7 +16,7 @@ use tonic::transport::Server;
 
 use web_json_translation::json_registration;
 
-use crate::web_json_translation::json_get_devices;
+use crate::web_json_translation::{json_get_devices, json_device_control};
 
 pub mod certificate_signing;
 pub mod device;
@@ -150,7 +150,11 @@ async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
             .wrap(cors)
             .wrap(actix_web::middleware::Logger::default()) //todo: make optional
             .service(json_registration::json_registration)
-            .service(json_get_devices::get_connected_devices)
+            .service(json_registration::json_registration_options)
+            .service(json_get_devices::json_get_connected_devices)
+            .service(json_get_devices::json_get_connected_devices_options)
+            .service(json_device_control::json_device_control)
+            .service(json_device_control::json_device_control_options)
     })
     .bind(ADDRESS)?
     .run();
