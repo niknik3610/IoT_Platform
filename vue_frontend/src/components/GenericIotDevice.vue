@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { frontend } from "@/generated/generated"
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
     deviceName: {
@@ -15,14 +15,23 @@ const props = defineProps({
 
 const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([])
 
-onMounted(() => {
-    props.capabilities.forEach((capability) => {
+onMounted(async () => {
+    activeCapabilities.value = await calculateActiveCapabilities(props.capabilities);
+
+    watch(props.capabilities, async (newCapabilities) => {
+        activeCapabilities.value = await calculateActiveCapabilities(newCapabilities);
+    })
+});
+
+async function calculateActiveCapabilities(capabilities: frontend.types.DeviceCapabilityStatus[]) {
+    let activeCapilities = capabilities.filter((capability) => {
         if (capability.available) {
-            console.log(capability);
-            activeCapabilities.value!.push(capability);
+            return capability;
         }
     });
-});
+
+    return activeCapilities;
+}
 </script>
 
 <template>
