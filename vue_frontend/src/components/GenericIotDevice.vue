@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { frontend } from "@/generated/generated"
+import { frontend } from "@/generated/generated";
 import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
@@ -9,21 +9,26 @@ const props = defineProps({
     },
     capabilities: {
         required: true,
-        type: Array<frontend.types.DeviceCapabilityStatus>
-    }
+        type: Array<frontend.types.DeviceCapabilityStatus>,
+    },
 });
 
-const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([])
+const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([]);
 
 onMounted(async () => {
-    activeCapabilities.value = await calculateActiveCapabilities(props.capabilities);
+    activeCapabilities.value = await calculateActiveCapabilities(
+        props.capabilities,
+    );
 
     watch(props.capabilities, async (newCapabilities) => {
-        activeCapabilities.value = await calculateActiveCapabilities(newCapabilities);
-    })
+        activeCapabilities.value =
+            await calculateActiveCapabilities(newCapabilities);
+    });
 });
 
-async function calculateActiveCapabilities(capabilities: frontend.types.DeviceCapabilityStatus[]) {
+async function calculateActiveCapabilities(
+    capabilities: frontend.types.DeviceCapabilityStatus[],
+) {
     let activeCapilities = capabilities.filter((capability) => {
         if (capability.available) {
             return capability;
@@ -37,7 +42,11 @@ async function calculateActiveCapabilities(capabilities: frontend.types.DeviceCa
 <template>
     <div class="lamp-control">
         <h2 class="title">{{ deviceName }}</h2>
-        <div v-for="capability in activeCapabilities" v-bind:key="capability.capability" class="button-container">
+        <div
+            v-for="capability in activeCapabilities"
+            v-bind:key="capability.capability"
+            class="button-container"
+        >
             <button @click="() => {}">{{ capability.capability }}</button>
         </div>
     </div>

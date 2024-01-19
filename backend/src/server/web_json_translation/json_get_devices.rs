@@ -29,10 +29,8 @@ pub async fn get_connected_devices(
     };
 
     let response = match response {
-        Ok(r) => {
-            r.into_inner()
-        },
-        Err(e) => return HttpResponse::InternalServerError().body(e.to_string())
+        Ok(r) => r.into_inner(),
+        Err(e) => return HttpResponse::InternalServerError().body(e.to_string()),
     };
 
     let json_response = serde_json::to_string(&response);
@@ -40,7 +38,8 @@ pub async fn get_connected_devices(
         Ok(r) => return HttpResponse::Ok().body(r),
         Err(e) => {
             eprintln!("{e}");
-            return HttpResponse::InternalServerError().body("Something went wrong while parsing the request");
+            return HttpResponse::InternalServerError()
+                .body("Something went wrong while parsing the request");
         }
     }
 }

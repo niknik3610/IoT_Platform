@@ -1,6 +1,6 @@
 import { API_REGISTRATION_ADDRESS } from "@/api_call_links";
 import { Result, errAsync, okAsync } from "neverthrow";
-import { frontend } from "@/generated/generated"
+import { frontend } from "@/generated/generated";
 
 export async function registerSelf(
     deviceName: string,
@@ -11,7 +11,7 @@ export async function registerSelf(
 
     const response = await fetch(API_REGISTRATION_ADDRESS, {
         method: "POST",
-        body: JSON.stringify(registrationRequest),       
+        body: JSON.stringify(registrationRequest),
         headers: {
             "Content-type": "application/json; charset=UTF-8",
         },

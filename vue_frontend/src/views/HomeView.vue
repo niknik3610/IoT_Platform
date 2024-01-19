@@ -21,10 +21,9 @@ onMounted(async () => {
     }
 
     let result = await proccessConnectedDevices();
-        if (result.isOk()) {
+    if (result.isOk()) {
         connectedDevices.value = result.value;
-    }
-    else if (result.isErr()) {
+    } else if (result.isErr()) {
         console.error(result.error.message);
         //todo: add proper error message here
         connectedDevices.value = [];
@@ -36,8 +35,7 @@ onMounted(async () => {
         if (result.isOk()) {
             connectedDevices.value = result.value;
             console.log("refreshed devices");
-        }
-        else if (result.isErr()) {
+        } else if (result.isErr()) {
             console.error(result.error.message);
             //todo: add proper error message here
             connectedDevices.value = [];
@@ -45,16 +43,20 @@ onMounted(async () => {
     }, REFRESH_TIMING_MS);
 });
 
-async function proccessConnectedDevices(): Promise<Result<frontend.registration.Device[], Error>> {
+async function proccessConnectedDevices(): Promise<
+    Result<frontend.registration.Device[], Error>
+> {
     let response = await getConnectedDevices(deviceIdStore.device_id);
 
     if (response.isOk()) {
         if (response.value.devices.length === 0) {
             return okAsync([]);
         }
-        return okAsync(response.value.devices.map((device) => {
-            return new frontend.registration.Device(device);
-        }));
+        return okAsync(
+            response.value.devices.map((device) => {
+                return new frontend.registration.Device(device);
+            }),
+        );
     }
     return errAsync(new Error(response.error.message));
 }
@@ -77,9 +79,11 @@ async function proccessConnectedDevices(): Promise<Result<frontend.registration.
         <!--     <p v-for="capability in device.capabilities">{{capability}}</p> -->
         <!-- </div> -->
         <div class="connected-devices-container">
-            <GenericIotDevice v-for="device in connectedDevices" v-bind:key="device.device_name"
-            :deviceName="device.device_name" 
-            :capabilities="device.capabilities" 
+            <GenericIotDevice
+                v-for="device in connectedDevices"
+                v-bind:key="device.device_name"
+                :deviceName="device.device_name"
+                :capabilities="device.capabilities"
             />
         </div>
     </div>

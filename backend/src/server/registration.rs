@@ -38,7 +38,7 @@ impl ClientRegistrationHandler {
         signing_service: CertificateSigningService,
         public_key: RsaPublicKey,
         connected_device_uuids: ThreadSafeMutable<Vec<String>>,
-        frontend_cache_valid: ThreadSafeMutable<bool>
+        frontend_cache_valid: ThreadSafeMutable<bool>,
     ) -> ClientRegistrationHandler {
         let string_public_key = serde_json::to_string(&public_key).unwrap();
         return ClientRegistrationHandler {

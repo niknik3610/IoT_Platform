@@ -5,7 +5,7 @@ import { createPinia } from "pinia";
 
 import App from "@/App.vue";
 import NavBar from "@/components/base/NavBar.vue";
-import GenericIotDevice from "@/components/GenericIotDevice.vue"
+import GenericIotDevice from "@/components/GenericIotDevice.vue";
 import router from "@/router";
 
 const app = createApp(App);
