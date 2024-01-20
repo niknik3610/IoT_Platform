@@ -28,8 +28,8 @@ The web interface is structured like a typical Vue project.
     │   ├── router/
     │   ├── shims-vue.d.ts
     │   ├── stores/
-    │   ├── types.ts\
-    │   └── views\
+    │   ├── types.ts
+    │   └── views/
     
 Some specific files and folders to pay attention to are:
 - The file api_call_links.ts: this provides all the JSON api endpoints provided by the backend server.
