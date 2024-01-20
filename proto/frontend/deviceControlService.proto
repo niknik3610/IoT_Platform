@@ -5,6 +5,7 @@ service FrontendDeviceControlService{
     rpc ControlDevice(DeviceControlRequest) returns (DeviceControlResponse);
 };
 
+// todo: add device that requested to control
 message DeviceControlRequest{
     string device_uuid = 1;
     string capability = 2;

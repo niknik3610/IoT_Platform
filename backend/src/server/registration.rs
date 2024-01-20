@@ -29,6 +29,7 @@ pub struct ClientRegistrationHandler {
     _public_key: rsa::RsaPublicKey,
     string_public_key: String,
     _device_count: ThreadSafeMutable<u128>,
+    frontend_cache_valid: ThreadSafeMutable<bool>,
 }
 impl ClientRegistrationHandler {
     pub fn new(
@@ -37,6 +38,7 @@ impl ClientRegistrationHandler {
         signing_service: CertificateSigningService,
         public_key: RsaPublicKey,
         connected_device_uuids: ThreadSafeMutable<Vec<String>>,
+        frontend_cache_valid: ThreadSafeMutable<bool>,
     ) -> ClientRegistrationHandler {
         let string_public_key = serde_json::to_string(&public_key).unwrap();
         return ClientRegistrationHandler {
@@ -46,6 +48,7 @@ impl ClientRegistrationHandler {
             string_public_key,
             _device_count: device_count,
             signing_service,
+            frontend_cache_valid,
         };
     }
 }
@@ -92,12 +95,13 @@ impl RegistrationService for ClientRegistrationHandler {
         }
 
         {
-            let connected_devices = self.connected_devices.lock();
-            connected_devices
-                .await
-                .insert(device.stringified_uuid.clone(), device);
+            let mut connected_devices = self.connected_devices.lock().await;
+            connected_devices.insert(device.stringified_uuid.clone(), device);
         }
-
+        {
+            let mut frontend_cache_valid = self.frontend_cache_valid.lock().await;
+            *frontend_cache_valid = false;
+        }
         return Ok(tonic::Response::new(response));
     }
 }
