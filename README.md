@@ -36,6 +36,7 @@ sudo apt install protobuf-compiler
 - [X] Add ability to hand client callback functions to be called when certain capabilities are triggered
 - [X] Get client working on a Raspberry Pi
 - [ ] Get network service discovery working between linux devices
+- [ ] Write proper run scripts for web-frontend/backend
 - [X] Write a proper README
 
 
