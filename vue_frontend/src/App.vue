@@ -13,6 +13,13 @@ import { RouterView } from "vue-router";
             <RouterView></RouterView>
         </div>
     </div>
+    <footer>
+        <nav class="footer-nav">
+            <a href="https://github.com/niknik3610/IoT_Platform">
+                <img src="@/assets/github-mark-white.svg" width="60px" height="60px" />
+            </a>
+        </nav>
+    </footer>
 </template>
 
 <style scoped>
@@ -25,7 +32,7 @@ import { RouterView } from "vue-router";
     top: 0px;
     left: 0px;
 }
-nav {
+header {
     width: 100%;
     align-self: left;
     padding-top: 20px;
@@ -37,5 +44,20 @@ nav {
     width: 100%;
     height: 100%;
     justify-items: center;
+}
+footer {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+
+    display: flex;
+}
+.footer-nav {
+    display: flex;
+    justify-content: end;
+    width: 100%;
+    padding-right: 20px;
+    padding-bottom: 20px;
 }
 </style>
