@@ -15,8 +15,8 @@ import { RouterView } from "vue-router";
     </div>
     <footer>
         <nav class="footer-nav">
-            <a href="https://github.com/niknik3610/IoT_Platform">
-                <img src="@/assets/github-mark-white.svg" width="60px" height="60px" />
+            <a href="https://github.com/niknik3610/IoT_Platform" target="_blank">
+                <img src="@/assets/github-mark-white.svg" width="40px" height="40px" />
             </a>
         </nav>
     </footer>
@@ -57,7 +57,7 @@ footer {
     display: flex;
     justify-content: end;
     width: 100%;
-    padding-right: 20px;
-    padding-bottom: 20px;
+    padding-right: 10px;
+    padding-bottom: 10px;
 }
 </style>

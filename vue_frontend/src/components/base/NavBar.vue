@@ -4,12 +4,25 @@ import { RouterLink } from "vue-router";
 
 <template>
     <div class="nav-bar">
-        <RouterLink to="/" class="router-item">Home</RouterLink>
-        <RouterLink to="/about" class="router-item">About</RouterLink>
+        <RouterLink to="/" class="active router-item">Home</RouterLink>
+        <RouterLink to="/about" class="active router-item">About</RouterLink>
     </div>
 </template>
 
 <style scoped>
+.active {
+    text-decoration: none;
+    color: hsla(160, 100%, 37%, 1);
+    transition: 0.4s;
+    padding: 3px;
+}
+
+@media (hover: hover) {
+    a:hover {
+        background-color: hsla(160, 100%, 37%, 0.2);
+    }
+}
+
 .nav-bar {
     display: flex;
     font-weight: bold;
