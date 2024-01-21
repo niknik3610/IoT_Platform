@@ -1,5 +1,5 @@
 use client_config::ClientConfig;
-use iot_client::ClientHandler;
+use iot_client::{ClientHandler, UserState};
 use rppal::gpio::Gpio;
 
 use crate::client_config::ParsedConfig;
@@ -10,6 +10,10 @@ pub mod client_polling;
 pub mod client_registration;
 pub mod client_types;
 pub mod iot_client;
+
+struct ExampleState {
+    text: String,
+}
 
 const CONFIG_PATH: &str = "./example_config.toml";
 #[tokio::main]
@@ -24,15 +28,13 @@ async fn main() -> anyhow::Result<()> {
         }
     };
 
-    let mut client_handler = ClientHandler::new();
+    let client_handler = ClientHandler::new();
     client_handler
+        .add_state(ExampleState { text: String::from("hello world") })
         .add_callback("Turn On", Box::new(turn_on_led))
-        .await;
-    client_handler
         .add_callback("Turn Off", Box::new(turn_off_led))
-        .await;
+        .run(config).await.unwrap();
 
-    client_handler.run(config).await.unwrap();
     return Ok(());
 }
 

@@ -1,4 +1,5 @@
-use std::sync::Arc;
+///this will soon become library code
+use std::{sync::Arc, any:: Any};
 
 use fxhash::FxHashMap;
 
@@ -10,24 +11,33 @@ pub const SERVER_IP: &str = "http://[::1]:50051";
 
 const RSA_KEY_SIZE: usize = 2048;
 const POLLING_INTERVAL: u64 = 500;
+
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 
 pub struct ClientHandler {
-    callbacks: ThreadSafeMutable<FxHashMap<String, Box<dyn Fn() -> ()>>>,
+    callbacks: FxHashMap<String, Box<dyn Fn() -> ()>>,
+    extensions: FxHashMap<String, Box<dyn Any>>
 }
 
 impl ClientHandler {
     pub fn new() -> Self {
         Self {
-            callbacks: ThreadSafeMutable::default(),
+            callbacks: FxHashMap::default(),
+            extensions: FxHashMap::default(),
         }
     }
     ///Replaces current callback function with supplied one
-    pub async fn add_callback(&mut self, capabillity: &str, call_back: Box<dyn Fn() -> ()>) {
-        let mut callbacks = self.callbacks.lock().await;
-        callbacks.insert(String::from(capabillity), call_back);
+    pub fn add_callback(mut self, capabillity: &str, call_back: Box<dyn Fn() -> ()>) -> Self {
+        self.callbacks.insert(String::from(capabillity), call_back);
+        return self
     }
-    pub async fn run(&mut self, config: ParsedConfig) -> anyhow::Result<()> {
+    pub fn add_state<T: 'static>(mut self, state: T) -> Self{
+        self.extensions.insert(String::from("state"), Box::new(state));
+        return self;
+    }
+
+    ///consumes self
+    pub async fn run(mut self, config: ParsedConfig) -> anyhow::Result<()> {
         let private_key;
         let capabilities = config.capabilities;
 
@@ -72,14 +82,24 @@ impl ClientHandler {
                     }
                 };
                 for update in updates.into_iter() {
-                    let callbacks = self.callbacks.lock().await;
-                    let callback = callbacks.get(&update.capability);
+                    let callback = self.callbacks.get(&update.capability);
                     match callback {
                         Some(v) => v(),
                         None => println!("Received signal to {}", update.capability),
                     }
                 }
             }
+        }
+    }
+}
+
+pub struct UserState<T> {
+    state: Arc<T>
+}
+impl<T> UserState<T> {
+    pub fn new(state: T) -> Self {
+        return Self {
+            state: Arc::new(state),
         }
     }
 }
