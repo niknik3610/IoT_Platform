@@ -14,25 +14,25 @@ const POLLING_INTERVAL: u64 = 500;
 
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 
-pub struct ClientHandler {
-    callbacks: FxHashMap<String, Box<dyn Fn() -> ()>>,
-    extensions: FxHashMap<String, Box<dyn Any>>
+pub struct ClientHandler<S: State> {
+    callbacks: FxHashMap<String, Box<Callback<S>>>,
+    state: S
 }
 
-impl ClientHandler {
+impl<S> ClientHandler<S> where S: State + 'static {
     pub fn new() -> Self {
         Self {
             callbacks: FxHashMap::default(),
-            extensions: FxHashMap::default(),
+            state: S::default()
         }
     }
     ///Replaces current callback function with supplied one
-    pub fn add_callback(mut self, capabillity: &str, call_back: Box<dyn Fn() -> ()>) -> Self {
-        self.callbacks.insert(String::from(capabillity), call_back);
+    pub fn add_callback(mut self, capabillity: &str, callback: Box<Callback<S>>) -> Self {
+        self.callbacks.insert(String::from(capabillity), callback);
         return self
     }
-    pub fn add_state<T: 'static>(mut self, state: T) -> Self{
-        self.extensions.insert(String::from("state"), Box::new(state));
+    pub fn add_state(mut self, state: S) -> Self{
+        self.state = state;
         return self;
     }
 
@@ -83,8 +83,10 @@ impl ClientHandler {
                 };
                 for update in updates.into_iter() {
                     let callback = self.callbacks.get(&update.capability);
+                    //todo: remove
+                    let temp_req = Request::new();
                     match callback {
-                        Some(v) => v(),
+                        Some(v) => v(&mut self.state, temp_req),
                         None => println!("Received signal to {}", update.capability),
                     }
                 }
@@ -93,13 +95,20 @@ impl ClientHandler {
     }
 }
 
-pub struct UserState<T> {
-    state: Arc<T>
+pub trait State: Default {
+
 }
-impl<T> UserState<T> {
-    pub fn new(state: T) -> Self {
-        return Self {
-            state: Arc::new(state),
+
+pub type Callback<S> = fn(&mut S, Request);
+
+pub struct Request {
+    contents: Arc<String>
+}
+impl Request {
+    pub fn new() -> Self{
+        Self {
+            contents: Arc::default(),
         }
     }
 }
+
