@@ -1,8 +1,14 @@
-device_name = "Test Device"
+device_name = "Hello device"
+#add display name to this, to be displayed on frontend
 
 [capability."Turn Off"]
-    #add display name to this, to be displayed on frontend
     available = true
 
 [capability."Turn On"]
+    available = true
+
+[capability."blabla"]
+    available = true
+
+[capability."bla"]
     available = true

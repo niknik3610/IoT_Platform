@@ -1,0 +1,42 @@
+[package]
+name = "NOSHP-Client"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "The Client library for Nik's Open-source Smart Home Platform"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tonic = "0.10"
+prost = "0.12"
+tokio = { version = "1.33.0", features = ["macros", "rt-multi-thread"] }
+anyhow = "1.0.75"
+prost-types = "0.12.1"
+fxhash = "0.2.1"
+rsa = { version = "0.9.3", features = ["serde", "sha2", "pem"] } 
+rand = "0.8.5"
+serde = { version = "1.0.190", features = ["derive"] }
+serde_json = "1.0.108"
+prost-build = "0.12.3"
+futures = "0.3.29"
+toml = "0.8.8"
+rppal = "0.16.1"
+actix-web = "4.4.1"
+clap = { version = "4.4.17", features = ["derive"] }
+log = "0.4.20"
+env_logger = "0.10.1"
+actix-cors = "0.7.0"
+futures-util = "0.3.30"
+
+[dependencies.uuid]
+version = "1.5.0"
+features = [
+    "v4",                
+    "fast-rng",           
+    "macro-diagnostics", 
+]
+
+[build-dependencies]
+tonic-build = "0.10"
+

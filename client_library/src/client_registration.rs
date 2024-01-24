@@ -3,10 +3,10 @@ use std::time::Duration;
 use tokio::time::sleep;
 
 use self::client_registration_service::RegistrationRequest;
+use crate::client::ThreadSafeMutable;
 use crate::client_connection;
 use crate::client_registration::client_registration_service::registration_service_client::RegistrationServiceClient;
 use crate::client_types::types::{self, DeviceCapabilityStatus};
-use crate::iot_client::{ThreadSafeMutable, SERVER_IP};
 
 mod client_registration_service {
     tonic::include_proto!("iot.registration");
@@ -20,8 +20,9 @@ pub async fn register_self(
     public_key: &RsaPublicKey,
     capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
     device_name: String,
+    server_ip: String,
 ) -> anyhow::Result<client_connection::ServerConnection> {
-    let mut client = RegistrationServiceClient::connect(SERVER_IP).await?;
+    let mut client = RegistrationServiceClient::connect(server_ip).await?;
     let stringified_public_key: String = serde_json::to_string(public_key).unwrap();
 
     let response;
@@ -50,10 +51,16 @@ pub async fn repeated_register_self(
     public_key: &RsaPublicKey,
     capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
     device_name: String,
+    server_ip: String,
 ) -> client_connection::ServerConnection {
     let id = loop {
-        let id_req_result =
-            register_self(public_key, capabilities.clone(), device_name.clone()).await;
+        let id_req_result = register_self(
+            public_key,
+            capabilities.clone(),
+            device_name.clone(),
+            server_ip.clone(),
+        )
+        .await;
         match id_req_result {
             Ok(r) => {
                 break r;

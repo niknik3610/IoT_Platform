@@ -1,5 +1,4 @@
-///this will soon become library code
-use std::{sync::Arc, any:: Any};
+use std::{any::Any, sync::Arc};
 
 use fxhash::FxHashMap;
 
@@ -7,8 +6,8 @@ use crate::{
     client_config::ParsedConfig, client_polling, client_registration,
     client_types::types::DeviceCapabilityStatus,
 };
-pub const SERVER_IP: &str = "http://[::1]:50051";
 
+//todo: make these optional parameters user can change
 const RSA_KEY_SIZE: usize = 2048;
 const POLLING_INTERVAL: u64 = 500;
 
@@ -16,28 +15,31 @@ pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 
 pub struct ClientHandler<S: State> {
     callbacks: FxHashMap<String, Box<Callback<S>>>,
-    state: S
+    state: S,
 }
 
-impl<S> ClientHandler<S> where S: State + 'static {
+impl<S> ClientHandler<S>
+where
+    S: State + 'static,
+{
     pub fn new() -> Self {
         Self {
             callbacks: FxHashMap::default(),
-            state: S::default()
+            state: S::default(),
         }
     }
     ///Replaces current callback function with supplied one
     pub fn add_callback(mut self, capabillity: &str, callback: Box<Callback<S>>) -> Self {
         self.callbacks.insert(String::from(capabillity), callback);
-        return self
+        return self;
     }
-    pub fn add_state(mut self, state: S) -> Self{
+    pub fn add_state(mut self, state: S) -> Self {
         self.state = state;
         return self;
     }
 
     ///consumes self
-    pub async fn run(mut self, config: ParsedConfig) -> anyhow::Result<()> {
+    pub async fn run(mut self, config: ParsedConfig, server_ip: String) -> anyhow::Result<()> {
         let private_key;
         let capabilities = config.capabilities;
 
@@ -52,6 +54,7 @@ impl<S> ClientHandler<S> where S: State + 'static {
             &private_key.to_public_key(),
             capabilities.clone(),
             config.device_name,
+            server_ip.clone(),
         )
         .await;
 
@@ -64,7 +67,7 @@ impl<S> ClientHandler<S> where S: State + 'static {
                 tokio::time::interval(std::time::Duration::from_millis(POLLING_INTERVAL));
 
             let mut polling_service = client_polling::PollingService {
-                client: client_polling::polling::request_update_service_client::RequestUpdateServiceClient::connect(SERVER_IP).await.unwrap(),
+                client: client_polling::polling::request_update_service_client::RequestUpdateServiceClient::connect(server_ip).await.unwrap(),
                 capabilities: capabilities.clone(),
                 updated: has_update.clone(),
             };
@@ -95,20 +98,17 @@ impl<S> ClientHandler<S> where S: State + 'static {
     }
 }
 
-pub trait State: Default {
-
-}
+pub trait State: Default {}
 
 pub type Callback<S> = fn(&mut S, Request);
 
 pub struct Request {
-    contents: Arc<String>
+    contents: Arc<String>,
 }
 impl Request {
-    pub fn new() -> Self{
+    pub fn new() -> Self {
         Self {
             contents: Arc::default(),
         }
     }
 }
-

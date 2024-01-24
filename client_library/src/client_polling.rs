@@ -2,8 +2,8 @@ use tonic::transport::Channel;
 
 use self::polling::{PollingOption, Update};
 use crate::{
+    client::ThreadSafeMutable,
     client_types::types::{self},
-    iot_client::ThreadSafeMutable,
 };
 
 pub mod polling {
