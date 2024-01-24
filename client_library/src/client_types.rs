@@ -1,3 +1,3 @@
 pub mod types {
-    tonic::include_proto!("iot.types");
+    include!("generated/types.rs");
 }
