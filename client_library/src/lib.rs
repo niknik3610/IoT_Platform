@@ -33,7 +33,9 @@
 //!             ParsedConfig::default()
 //!         }
 //!     };
+//!
 //!     let client_handler = ClientHandler::new();
+//!
 //!     client_handler
 //!     .add_state(ExampleState { text: String::from("hello world") })
 //!     .add_callback("Turn On", Box::new(turn_on_led))
