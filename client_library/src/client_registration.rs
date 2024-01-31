@@ -61,13 +61,14 @@ pub async fn repeated_register_self(
             server_ip.clone(),
         )
         .await;
+
         match id_req_result {
             Ok(r) => {
                 break r;
             }
             Err(ref e) => {
                 eprintln!("Error During ID request, trying again");
-                eprintln!("{}", e.to_string());
+                eprintln!("{e}");
                 sleep(Duration::from_millis(500)).await;
             }
         }

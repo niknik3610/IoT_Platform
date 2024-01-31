@@ -1,6 +1,6 @@
 [package]
 name = "NOSHP-Client"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 license = "MIT"
 description = "The Client library for Nik's Open-source Smart Home Platform"

@@ -1,9 +1,10 @@
-use std::{future::IntoFuture, sync::Arc};
+use std::{future::IntoFuture, net::SocketAddr, sync::Arc};
 
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
 use device_control_service::frontend_device_control::frontend_device_control_service_server;
 use fxhash::FxHashMap;
+use local_ip_address::local_ip;
 use polling::polling_service::request_update_service_server;
 use registration::{
     frontend_registration_service::frontend_registration_service_server,
@@ -13,7 +14,6 @@ use rsa::pkcs1v15::SigningKey;
 
 use futures_util::FutureExt;
 use tonic::transport::Server;
-
 use web_json_translation::json_registration;
 
 use crate::web_json_translation::{json_get_devices, json_device_control};
@@ -41,11 +41,22 @@ struct Args {
     json_frontend: bool,
 }
 
+const DEFAULT_PORT: u16 = 2302;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let addr = "[::1]:50051".parse()?;
+    //todo: let user input a custom ip + port (idk for what reason tho)
+    let local_ip = local_ip().map_err(|e| {
+        eprintln!("Error getting local ip address
+                  You can try to set your own using --not-implemented"); 
+        return e;
+    })?;
+
+    //todo: put this into Args
+    let port = DEFAULT_PORT;
+    let grpc_address = SocketAddr::new(local_ip, port);
 
     let connected_devices: ThreadSafeMutable<ConnectedDevicesType> = Arc::default();
     let connected_device_uuids: ThreadSafeMutable<Vec<String>> = Arc::default();
@@ -102,12 +113,13 @@ async fn main() -> anyhow::Result<()> {
                 device_control_service,
             ),
         )
-        .serve_with_shutdown(addr, tokio::signal::ctrl_c().map(drop));
+        .serve_with_shutdown(grpc_address, tokio::signal::ctrl_c().map(drop));
+    println!("Started GRPC Server on {grpc_address}");
 
     let grpc_handle = tokio::spawn(async move { grpc_server.await });
 
     if args.json_frontend {
-        match run_json_frontend().await {
+        match run_json_frontend(grpc_address).await {
             Ok(json_server) => {
                 tokio::spawn(async move { json_server.await });
             }
@@ -116,7 +128,7 @@ async fn main() -> anyhow::Result<()> {
                 eprintln!("{e}");
             }
         };
-    }
+    };
 
     match grpc_handle.into_future().await {
         Ok(_) => println!("The GRPC Server excited Succesfully"),
@@ -124,20 +136,25 @@ async fn main() -> anyhow::Result<()> {
             eprintln!("There was an error while running the GRPC Server:");
             eprintln!("{e}");
         }
-    }
+    };
     Ok(())
 }
 
-async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
-    const ADDRESS: &str = "localhost:50052";
+async fn run_json_frontend(grpc_address: SocketAddr) -> anyhow::Result<actix_web::dev::Server> {
+    const JSON_ADDRESS: &str = "localhost:50052";
+    let grpc_address = String::from("http://") + &grpc_address.to_string();
+
     println!("Starting JSON API Layer...");
     let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
     let json_state = loop {
         interval.tick().await;
-        let result = web_json_translation::json_translation::TranslationClientState::new().await;
+        let result = web_json_translation::json_translation::TranslationClientState::new(grpc_address.clone()).await;
         match result {
             Ok(r) => break r,
-            Err(_e) => println!("Could not connect to grpc service, retrying..."),
+            Err(e) => {
+                println!("Could not connect to grpc service, retrying...");
+                eprintln!("{e}");
+            }
         }
     };
 
@@ -156,10 +173,10 @@ async fn run_json_frontend() -> anyhow::Result<actix_web::dev::Server> {
             .service(json_device_control::json_device_control)
             .service(json_device_control::json_device_control_options)
     })
-    .bind(ADDRESS)?
+    .bind(JSON_ADDRESS)?
     .run();
 
-    println!("Successfully Started JSON API Layer on {ADDRESS}");
+    println!("Successfully Started JSON API Layer on {JSON_ADDRESS}");
 
     return Ok(result);
 }
