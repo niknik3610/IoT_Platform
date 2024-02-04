@@ -1,4 +1,4 @@
-use std::{any::Any, sync::Arc};
+use std::sync::Arc;
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
@@ -17,6 +17,7 @@ pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub struct ClientHandler<S: State> {
     callbacks: FxHashMap<String, Box<Callback<S>>>,
     state: S,
+    server_ip: Option<String>,
 }
 
 impl<S> ClientHandler<S>
@@ -27,6 +28,7 @@ where
         Self {
             callbacks: FxHashMap::default(),
             state: S::default(),
+            server_ip: None
         }
     }
     ///Replaces current callback function with supplied one
@@ -34,19 +36,24 @@ where
         self.callbacks.insert(String::from(capabillity), callback);
         return self;
     }
-    pub fn add_state(mut self, state: S) -> Self {
+    ///Sets the state that is passed as a parameter to callback functions
+    pub fn set_state(mut self, state: S) -> Self {
         self.state = state;
         return self;
     }
-
-    ///consumes self, you do not have to include a server_ip if it is included in the config
-    pub async fn run(mut self, config: ParsedConfig, server_ip: Option<String>) -> anyhow::Result<()> {
+    ///Overrides any server_ip set in the config, should be in format http://serverip:port
+    pub fn set_server_ip(mut self, server_ip: String) -> Self {
+        self.server_ip = Some(server_ip);
+        return self;
+    }
+    ///Consumes self
+    pub async fn run(mut self, config: ParsedConfig) -> anyhow::Result<()> {
         //this is not pretty, probably refactor in the future
-        if let (None, None) = (server_ip.clone(), config.server_ip.clone()) {
-            return Err(anyhow!("Did not receive a server ip from the config or parameter, one of them needs to be set"));
+        if let (None, None) = (self.server_ip.clone(), config.server_ip.clone()) {
+            return Err(anyhow!("Did not receive a server ip from the config or using set_server_ip, one of them needs to be set"));
         }
         
-        let server_ip = match server_ip {
+        let server_ip = match self.server_ip {
             Some(v) => v,
             None => config.server_ip.unwrap()
         };
