@@ -14,14 +14,17 @@
 //! displayed in the request (not implemented yet).
 //!
 //! ```
+//! use std::error::Error;
+//! use NOSHP_Client::{client::{ClientHandler, Request, State}, client_config::{ClientConfig, ParsedConfig}};
+//!  
 //! #[derive(Default)]
 //! struct ExampleState { 
 //!     text: String,
 //! }
 //! impl State for ExampleState {}
-//! pub const SERVER_IP: &str = "http://[::1]:50051";
 //! 
 //! const CONFIG_PATH: &str = "./example_config.toml";
+//!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn Error>> {
 //!     let config = ClientConfig::load_config(CONFIG_PATH);
@@ -37,10 +40,12 @@
 //!     let client_handler = ClientHandler::new();
 //!
 //!     client_handler
-//!     .add_state(ExampleState { text: String::from("hello world") })
+//!     .set_state(ExampleState { text: String::from("hello world") })
 //!     .add_callback("Turn On", Box::new(turn_on_led))
 //!     .add_callback("Turn Off", Box::new(turn_off_led))
-//!     .run(config, String::from(SERVER_IP)).await.unwrap();
+//!     .run(config)
+//!     .await.unwrap();
+//!
 //!     return Ok(());
 //! }
 //!
@@ -51,6 +56,7 @@
 //!     println!("turned off led");
 //! } 
 //! ```
+//!
 
 pub mod client;
 pub mod client_config;
