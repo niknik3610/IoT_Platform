@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
@@ -14,21 +14,24 @@ const POLLING_INTERVAL: u64 = 500;
 
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 
-pub struct ClientHandler<S: State> {
+pub struct NoshpClient<S: UserDefinedState> {
     callbacks: FxHashMap<String, Box<Callback<S>>>,
-    state: S,
+    client_state: ClientState<S>,
     server_ip: Option<String>,
 }
+//state should return an object which has:
+//  - user defined state
+//  - all capabilities with their properties
 
-impl<S> ClientHandler<S>
+impl<S> NoshpClient<S>
 where
-    S: State + 'static,
+    S: UserDefinedState + 'static,
 {
     pub fn new() -> Self {
         Self {
             callbacks: FxHashMap::default(),
-            state: S::default(),
-            server_ip: None
+            client_state: ClientState::new(),
+            server_ip: None,
         }
     }
     ///Replaces current callback function with supplied one
@@ -38,7 +41,7 @@ where
     }
     ///Sets the state that is passed as a parameter to callback functions
     pub fn set_state(mut self, state: S) -> Self {
-        self.state = state;
+        self.client_state.user_state = state;
         return self;
     }
     ///Overrides any server_ip set in the config, should be in format http://serverip:port
@@ -52,10 +55,10 @@ where
         if let (None, None) = (self.server_ip.clone(), config.server_ip.clone()) {
             return Err(anyhow!("Did not receive a server ip from the config or using set_server_ip, one of them needs to be set"));
         }
-        
+
         let server_ip = match self.server_ip {
             Some(v) => v,
-            None => config.server_ip.unwrap()
+            None => config.server_ip.unwrap(),
         };
 
         let private_key;
@@ -63,6 +66,8 @@ where
 
         let capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>> =
             Arc::new(tokio::sync::Mutex::new(capabilities));
+
+        self.client_state.capabilities = capabilities.clone();
         {
             let mut rng = rand::thread_rng();
             private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap();
@@ -107,7 +112,7 @@ where
                     //todo: the requests aren't really implemented yet
                     let empty_request = Request::new();
                     match callback {
-                        Some(callback) => callback(&mut self.state, empty_request),
+                        Some(callback) => callback(&mut self.client_state, empty_request),
                         None => println!("Received signal to {}", update.capability),
                     }
                 }
@@ -116,9 +121,22 @@ where
     }
 }
 
-pub trait State: Default {}
+pub trait UserDefinedState: Default {}
 
-pub type Callback<S> = fn(&mut S, Request);
+pub struct ClientState<S: UserDefinedState> {
+    capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
+    user_state: S,
+}
+impl<S: UserDefinedState> ClientState<S> {
+    fn new() -> Self {
+        return Self {
+            capabilities: Arc::default(),
+            user_state: S::default(),
+        };
+    }
+}
+
+pub type Callback<S> = fn(&mut ClientState<S>, Request);
 
 pub struct Request {
     contents: Arc<String>,

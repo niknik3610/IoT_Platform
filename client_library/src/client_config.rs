@@ -24,7 +24,7 @@ impl ClientConfig {
 
         if config_path.exists() {
             let content = fs::read_to_string(config_path)?;
-            let config: ClientConfig = toml::from_str(&content)?; 
+            let config: ClientConfig = toml::from_str(&content)?;
 
             let capabilities = config.capability.into_iter().map(|(name, value)|{
                 let value = match value {
@@ -76,7 +76,9 @@ impl ClientConfig {
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
-            server_ip: Some(String::from("Your server IP here, or nothing if you want to set it programmatically")),
+            server_ip: Some(String::from(
+                "Your server IP here, or nothing if you want to set it programmatically",
+            )),
             device_name: String::from("Unnamed Device"),
             capability: Table::new(),
         }
