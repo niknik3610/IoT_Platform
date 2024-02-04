@@ -7,11 +7,13 @@ use crate::client_types::types::DeviceCapabilityStatus;
 
 #[derive(Serialize, Deserialize)]
 pub struct ClientConfig {
+    pub server_ip: Option<String>,
     pub device_name: String,
     pub capability: Table,
 }
 
 pub struct ParsedConfig {
+    pub server_ip: Option<String>,
     pub device_name: String,
     pub capabilities: Vec<DeviceCapabilityStatus>,
 }
@@ -22,7 +24,7 @@ impl ClientConfig {
 
         if config_path.exists() {
             let content = fs::read_to_string(config_path)?;
-            let config: ClientConfig = toml::from_str(&content)?;
+            let config: ClientConfig = toml::from_str(&content)?; 
 
             let capabilities = config.capability.into_iter().map(|(name, value)|{
                 let value = match value {
@@ -52,6 +54,7 @@ impl ClientConfig {
             }).collect();
 
             return Ok(ParsedConfig {
+                server_ip: config.server_ip,
                 device_name: config.device_name,
                 capabilities,
             });
@@ -63,6 +66,7 @@ impl ClientConfig {
 
         fs::write(config_path, toml)?;
         return Ok(ParsedConfig {
+            server_ip: None,
             device_name: config.device_name,
             capabilities: Vec::new(),
         });
@@ -72,6 +76,7 @@ impl ClientConfig {
 impl Default for ClientConfig {
     fn default() -> Self {
         Self {
+            server_ip: Some(String::from("Your server IP here, or nothing if you want to set it programmatically")),
             device_name: String::from("Unnamed Device"),
             capability: Table::new(),
         }
@@ -81,6 +86,7 @@ impl Default for ClientConfig {
 impl Default for ParsedConfig {
     fn default() -> Self {
         Self {
+            server_ip: None,
             device_name: String::from("Unnamed Device"),
             capabilities: Vec::new(),
         }

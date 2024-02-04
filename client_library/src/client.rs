@@ -1,5 +1,6 @@
 use std::{any::Any, sync::Arc};
 
+use anyhow::anyhow;
 use fxhash::FxHashMap;
 
 use crate::{
@@ -38,8 +39,18 @@ where
         return self;
     }
 
-    ///consumes self
-    pub async fn run(mut self, config: ParsedConfig, server_ip: String) -> anyhow::Result<()> {
+    ///consumes self, you do not have to include a server_ip if it is included in the config
+    pub async fn run(mut self, config: ParsedConfig, server_ip: Option<String>) -> anyhow::Result<()> {
+        //this is not pretty, probably refactor in the future
+        if let (None, None) = (server_ip.clone(), config.server_ip.clone()) {
+            return Err(anyhow!("Did not receive a server ip from the config or parameter, one of them needs to be set"));
+        }
+        
+        let server_ip = match server_ip {
+            Some(v) => v,
+            None => config.server_ip.unwrap()
+        };
+
         let private_key;
         let capabilities = config.capabilities;
 
