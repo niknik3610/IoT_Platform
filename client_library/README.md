@@ -5,6 +5,7 @@ This Rust library is meant as a resource to easily write code to interact with t
 - [Github](https://github.com/niknik3610/IoT_Platform)
 - [Crates.io](https://crates.io/crates/serde)
 - [Documenation](https://docs.rs/NOSHP-Client/0.1.2/NOSHP_Client/)
+- [Example Client](https://github.com/niknik3610/Example-Iot-Device)
 
 ### Building 
 Run the command:
