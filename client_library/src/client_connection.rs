@@ -1,4 +1,4 @@
-pub struct ServerConnection {
+struct ServerConnection {
     pub uuid: String,
     pub server_pub_key: rsa::RsaPublicKey,
     pub security_certificate: String,

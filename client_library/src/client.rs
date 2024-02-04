@@ -104,10 +104,10 @@ where
                 };
                 for update in updates.into_iter() {
                     let callback = self.callbacks.get(&update.capability);
-                    //todo: remove
-                    let temp_req = Request::new();
+                    //todo: the requests aren't really implemented yet
+                    let empty_request = Request::new();
                     match callback {
-                        Some(v) => v(&mut self.state, temp_req),
+                        Some(callback) => callback(&mut self.state, empty_request),
                         None => println!("Received signal to {}", update.capability),
                     }
                 }
