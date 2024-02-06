@@ -9,26 +9,19 @@ description = "The Client library for Nik's Open-source Smart Home Platform"
 
 [dependencies]
 tonic = "0.10"
-prost = "0.12"
-prost-build = "0.12.3"
 tokio = { version = "1.33.0", features = ["macros", "rt-multi-thread"] }
 anyhow = "1.0.75"
-prost-types = "0.12.1"
 fxhash = "0.2.1"
 rsa = { version = "0.9.3", features = ["serde", "sha2", "pem"] } 
 serde = { version = "1.0.190", features = ["derive"] }
 serde_json = "1.0.108"
-futures = "0.3.29"
 toml = "0.8.8"
 rand = "0.8.5"
 
-[dependencies.uuid]
-version = "1.5.0"
-features = [
-    "v4",                
-    "fast-rng",           
-    "macro-diagnostics", 
-]
+#if I precompile the protobuf files these are no longer needed
+prost = "0.12"
+prost-types = "0.12.1"
+prost-build = "0.12.3"
 
 [build-dependencies]
 tonic-build = "0.10"
