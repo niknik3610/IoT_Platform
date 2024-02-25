@@ -1,3 +1,5 @@
+use rsa::pss::SigningKey;
+use rsa::sha2::Sha256;
 use rsa::RsaPublicKey;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -53,6 +55,7 @@ pub async fn repeated_register_self(
     device_name: String,
     server_ip: String,
 ) -> client_connection::ServerConnection {
+    println!("Attempting to establish connection with: {}", server_ip);
     let id = loop {
         let id_req_result = register_self(
             public_key,
@@ -69,10 +72,11 @@ pub async fn repeated_register_self(
             Err(ref e) => {
                 eprintln!("Error During ID request, trying again");
                 eprintln!("{e}");
-                sleep(Duration::from_millis(500)).await;
+                sleep(Duration::from_millis(1000)).await;
             }
         }
     };
 
+    println!("Successfully established Connection");
     return id;
 }

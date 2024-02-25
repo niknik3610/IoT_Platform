@@ -31,13 +31,17 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     if args.server_address == "" {
-        return Err(anyhow::anyhow!("Error: You must include the Server's address using -s https://{{serverAddress}}:{{port}}"));
+        return Err(anyhow::anyhow!("Error: You must include the Server's address using -s {{serverAddress}}:{{port}}"));
     }
+    let server_address = if !args.server_address.starts_with("https://") {
+        String::from("https://") + &args.server_address
+    } else {
+        args.server_address
+    };
 
-    //todo: add ability to exit any page on frontend
     println!("Connecting...");
-    let mut registration_client = FrontendRegistrationServiceClient::connect(args.server_address.clone()).await?;
-    let mut control_client = FrontendDeviceControlServiceClient::connect(args.server_address).await?;
+    let mut registration_client = FrontendRegistrationServiceClient::connect(server_address.clone()).await?;
+    let mut control_client = FrontendDeviceControlServiceClient::connect(server_address.clone()).await?;
 
     let response = registration_client
         .register(RegistrationRequest {
@@ -71,8 +75,9 @@ async fn main() -> anyhow::Result<()> {
                     }
                 }
             }
-
+            //todo: check if this works when user selects 10
             input_buffer.pop();
+
             let choice = match input_buffer.parse::<u32>() {
                 Ok(r) => r,
                 Err(_e) => {

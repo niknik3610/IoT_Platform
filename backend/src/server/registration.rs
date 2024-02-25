@@ -1,11 +1,12 @@
 use fxhash::FxHashMap;
+use rsa::pss::VerifyingKey;
+use rsa::sha2::Sha256;
 use rsa::RsaPublicKey;
 use std::sync::Arc;
 use tonic::async_trait;
 use uuid::Uuid;
 
 use crate::certificate_signing::CertificateSigningService;
-use crate::types::types;
 use crate::{
     certificate_signing, device, frontend_clients, ConnectedDevicesType, RPCFunctionResult,
     ThreadSafeMutable,
@@ -14,6 +15,7 @@ use crate::{
 use self::frontend_registration_service::frontend_registration_service_server::FrontendRegistrationService;
 use self::registration_service::registration_service_server::RegistrationService;
 
+use crate::types::types;
 pub mod registration_service {
     tonic::include_proto!("iot.registration");
 }
@@ -62,7 +64,7 @@ impl RegistrationService for ClientRegistrationHandler {
         let client_id: Uuid = generate_new_id();
 
         let csr = client_id.to_string() + &request.public_key;
-        let new_certificate = self.signing_service.sign_certificate(csr);
+        let new_certificate = self.signing_service.sign_data(csr);
 
         let capabilites = request.capabilities;
 
@@ -78,7 +80,8 @@ impl RegistrationService for ClientRegistrationHandler {
             active_capabilities,
             inactive_capabilities,
             client_id,
-            device_public_key,
+            device_public_key.clone(),
+            VerifyingKey::<Sha256>::from(device_public_key)
         );
 
         let response = registration_service::RegistrationResponse {

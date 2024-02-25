@@ -50,8 +50,8 @@ async fn main() -> anyhow::Result<()> {
     //todo: let user input a custom ip + port (idk for what reason tho)
     let local_ip = local_ip().map_err(|e| {
         eprintln!("Error getting local ip address
-                  You can try to set your own using --not-implemented"); 
-        return e;
+                  You can try setting it manually using --set-ip:{{ip}}"); 
+        e
     })?;
 
     //todo: put this into Args
@@ -72,7 +72,7 @@ async fn main() -> anyhow::Result<()> {
     let signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
     let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
-    let signing_service = certificate_signing::CertificateSigningService::new(signing_key);
+    let signing_service = certificate_signing::CertificateSigningService::new(private_key.clone());
     let registration_service = registration::ClientRegistrationHandler::new(
         connected_devices.clone(),
         device_count,
@@ -97,7 +97,8 @@ async fn main() -> anyhow::Result<()> {
         device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
     let grpc_server = Server::builder()
-        .add_service(registration_service_server::RegistrationServiceServer::new(
+        .add_service(
+            registration_service_server::RegistrationServiceServer::new(
             registration_service,
         ))
         .add_service(
@@ -114,6 +115,7 @@ async fn main() -> anyhow::Result<()> {
             ),
         )
         .serve_with_shutdown(grpc_address, tokio::signal::ctrl_c().map(drop));
+
     println!("Started GRPC Server on {grpc_address}");
 
     let grpc_handle = tokio::spawn(async move { grpc_server.await });

@@ -1,3 +1,4 @@
+use rsa::{pss::VerifyingKey, sha2::Sha256};
 use uuid::Uuid;
 
 use crate::types::types::DeviceCapabilityStatus;
@@ -10,6 +11,7 @@ pub struct Device {
     pub active_capabilities: Vec<DeviceCapabilityStatus>,
     pub inactive_capabilities: Vec<DeviceCapabilityStatus>,
     pub device_public_key: rsa::RsaPublicKey,
+    pub device_verification_key: VerifyingKey<Sha256>
 }
 impl Device {
     pub fn new(
@@ -18,6 +20,7 @@ impl Device {
         inactive_capabilities: Vec<DeviceCapabilityStatus>,
         uuid: Uuid,
         device_public_key: rsa::RsaPublicKey,
+        device_verification_key: VerifyingKey<Sha256>
     ) -> self::Device {
         return Device {
             name,
@@ -26,6 +29,7 @@ impl Device {
             active_capabilities,
             inactive_capabilities,
             device_public_key,
+            device_verification_key
         };
     }
     pub fn replace_capabilities(

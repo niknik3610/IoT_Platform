@@ -3,8 +3,9 @@ use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
 use crate::types::types::{self, DeviceCapabilityStatus};
-use crate::{ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
+use crate::{certificate_signing, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
 use fxhash::FxHashMap;
+use rsa::{Pkcs1v15Sign, RsaPrivateKey};
 use tonic::async_trait;
 
 pub mod polling_service {
@@ -64,13 +65,14 @@ impl PollingHandler {
         };
     }
 }
+
 #[async_trait]
 impl RequestUpdateService for PollingHandler {
     async fn poll_for_update(
         &self,
         request: tonic::Request<PollRequest>,
     ) -> RPCFunctionResult<PollResponse> {
-        let request = request.into_inner();
+        let request = request.into_inner(); 
         let device_uuid = request.uuid;
         {
             let mut connected_devices = self.connected_devices.lock().await;
@@ -81,9 +83,14 @@ impl RequestUpdateService for PollingHandler {
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::DeviceNotFound as i32,
                         updates: Vec::new(),
+                        signature: String::from(""), //todo
                     }));
                 }
             };
+
+            let padding = Pkcs1v15Sign::new_unprefixed();
+            let signature_valid = certificate_signing::verify_signature(&device.device_verification_key, String::from("hello world"), request.signature);
+            println!("Signature is valid: {}", signature_valid);
 
             if !request.updated_capabilities.is_empty() {
                 let (active_capabilities, inactive_capabilities): (
@@ -98,37 +105,41 @@ impl RequestUpdateService for PollingHandler {
                 *frontend_cache_valid = false;
             }
         }
+        {
+            let mut updates = self.events.lock().await;
+            let updates = updates.get_mut(&device_uuid);
 
-        let mut updates = self.events.lock().await;
-        let updates = updates.get_mut(&device_uuid);
+            let updates = match updates {
+                Some(r) => r,
+                None => {
+                    return Ok(tonic::Response::new(PollResponse {
+                        has_update: PollingOption::None as i32,
+                        updates: Vec::new(),
+                        signature: String::from(""),
+                    }));
+                }
+            };
 
-        let updates = match updates {
-            Some(r) => r,
-            None => {
+            if updates.is_empty() {
                 return Ok(tonic::Response::new(PollResponse {
                     has_update: PollingOption::None as i32,
                     updates: Vec::new(),
+                    signature: String::from(""),
                 }));
-            }
-        };
+            };
 
-        if updates.is_empty() {
+            let updates_clone = updates
+                .clone()
+                .iter()
+                .map(|update| update.to_update())
+                .collect();
+            updates.clear();
+
             return Ok(tonic::Response::new(PollResponse {
-                has_update: PollingOption::None as i32,
-                updates: Vec::new(),
+                has_update: PollingOption::Some as i32,
+                updates: updates_clone,
+                signature: String::from(""),
             }));
-        };
-
-        let updates_clone = updates
-            .clone()
-            .iter()
-            .map(|update| update.to_update())
-            .collect();
-        updates.clear();
-
-        return Ok(tonic::Response::new(PollResponse {
-            has_update: PollingOption::Some as i32,
-            updates: updates_clone,
-        }));
+        }
     }
 }

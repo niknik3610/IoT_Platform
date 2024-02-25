@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
+function hello() {
+    let hello = "hi";
+}
 </script>
 
 <template>
@@ -15,8 +18,15 @@ import { RouterView } from "vue-router";
     </div>
     <footer>
         <nav class="footer-nav">
-            <a href="https://github.com/niknik3610/IoT_Platform" target="_blank">
-                <img src="@/assets/github-mark-white.svg" width="40px" height="40px" />
+            <a
+                href="https://github.com/niknik3610/IoT_Platform"
+                target="_blank"
+            >
+                <img
+                    src="@/assets/github-mark-white.svg"
+                    width="40px"
+                    height="40px"
+                />
             </a>
         </nav>
     </footer>

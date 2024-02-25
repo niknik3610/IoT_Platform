@@ -10,11 +10,13 @@ message PollRequest {
     string certificate = 1;
     string uuid = 2;
     repeated iot.types.DeviceCapabilityStatus updatedCapabilities = 3;
+    string signature = 4;
 };
 
 message PollResponse {
     PollingOption hasUpdate = 1;
     repeated Update updates = 2;
+    string signature = 4;
 };
 
 enum PollingOption {

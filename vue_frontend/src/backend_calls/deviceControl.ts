@@ -8,7 +8,7 @@ export async function controlDevice(
 ): Promise<Result<frontend.devicecontrol.DeviceControlResponse, Error>> {
     const jsonRequest = frontend.devicecontrol.DeviceControlRequest.create({
         device_uuid: to_control_uuid,
-        capability: capability_to_control
+        capability: capability_to_control,
     }).toJSON();
 
     const response = await fetch(API_DEVICE_CONTROL_ADDRESS, {

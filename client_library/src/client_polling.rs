@@ -1,21 +1,46 @@
+use rsa::{pkcs1v15::{Signature, SigningKey}, sha2::{digest::{FixedOutput, FixedOutputReset, HashMarker}, Sha256}, Pkcs1v15Sign, RsaPrivateKey};
 use tonic::transport::Channel;
+use rsa::signature::{Keypair,RandomizedSigner, SignatureEncoding, Verifier};
+use rsa::pss::BlindedSigningKey;
 
 use self::polling::{PollingOption, Update};
 use crate::{
-    client::ThreadSafeMutable,
-    client_types::types::{self},
+    client::ThreadSafeMutable, client_connection::ServerConnection, client_types::types
 };
 
 pub mod polling {
     tonic::include_proto!("iot.polling");
 }
 pub struct PollingService {
-    pub client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
-    pub capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
-    pub updated: ThreadSafeMutable<bool>,
+    client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
+    capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
+    updated: ThreadSafeMutable<bool>,
+    connection_details: ServerConnection,
+    signing_key: BlindedSigningKey<Sha256>,
 }
 impl PollingService {
+    pub fn new(
+        client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
+        capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
+        updated: ThreadSafeMutable<bool>,
+        connection_details: ServerConnection,
+        signing_key: BlindedSigningKey<Sha256>
+    ) -> Self {
+        Self {
+            client,
+            capabilities,
+            updated,
+            connection_details,
+            signing_key
+        }
+    }
     pub async fn get_updates(&mut self, certificate: String, uuid: String) -> Option<Vec<Update>> {
+        let signature = {
+            let mut rng = rand::thread_rng();
+            let data = b"hello world";
+            self.signing_key.sign_with_rng(&mut rng, data).to_string()
+        };
+
         let updated_capabilities = {
             let mut update = self.updated.lock().await;
 
@@ -33,6 +58,7 @@ impl PollingService {
                 certificate,
                 uuid,
                 updated_capabilities,
+                signature,
             }))
             .await;
 

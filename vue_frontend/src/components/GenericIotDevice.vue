@@ -15,7 +15,7 @@ const props = defineProps({
     deviceUuid: {
         required: true,
         type: String,
-    }
+    },
 });
 
 const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([]);
@@ -47,9 +47,10 @@ async function activateCapability(capability: string) {
     let result = await controlDevice(props.deviceUuid, capability);
     if (result.isOk()) {
         console.log(`${capability} activated succesfully`);
-    }
-    else if (result.isErr()) {
-        console.error(`${props.deviceName} had error: ${result.error} while trying to activate capability ${capability}`);
+    } else if (result.isErr()) {
+        console.error(
+            `${props.deviceName} had error: ${result.error} while trying to activate capability ${capability}`,
+        );
     }
 }
 </script>
@@ -62,7 +63,9 @@ async function activateCapability(capability: string) {
             v-bind:key="capability.capability"
             class="button-container"
         >
-            <button @click="() => activateCapability(capability.capability)">{{ capability.capability }}</button>
+            <button @click="() => activateCapability(capability.capability)">
+                {{ capability.capability }}
+            </button>
         </div>
     </div>
 </template>
