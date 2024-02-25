@@ -1,5 +1,6 @@
 use frontend_registration::registration_service::Device;
 use tonic::transport::Channel;
+use clap::Parser;
 
 use crate::{
     frontend_device_control::frontend_device_control::{
@@ -16,14 +17,27 @@ pub mod frontend_device_control;
 pub mod frontend_registration;
 pub mod frontend_types;
 //todo: switch this to automatically discover servers on the network
-pub const SERVER_IP: &str = "http://[::1]:50051";
+//todo: take this from command line arg
+
+#[derive(clap::Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    ///Run an additional JSON frontend api endpoint, all json requests get routed to main GRPC
+    #[arg(long, short, default_value_t=String::from(""))]
+    server_address: String,
+}
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+    if args.server_address == "" {
+        return Err(anyhow::anyhow!("Error: You must include the Server's address using -s https://{{serverAddress}}:{{port}}"));
+    }
+
     //todo: add ability to exit any page on frontend
     println!("Connecting...");
-    let mut registration_client = FrontendRegistrationServiceClient::connect(SERVER_IP).await?;
-    let mut control_client = FrontendDeviceControlServiceClient::connect(SERVER_IP).await?;
+    let mut registration_client = FrontendRegistrationServiceClient::connect(args.server_address.clone()).await?;
+    let mut control_client = FrontendDeviceControlServiceClient::connect(args.server_address).await?;
 
     let response = registration_client
         .register(RegistrationRequest {
