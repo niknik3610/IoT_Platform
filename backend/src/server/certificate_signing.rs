@@ -1,7 +1,10 @@
-use rsa::{pss::{BlindedSigningKey, Signature, VerifyingKey}, sha2::Sha256, signature::{Keypair, RandomizedSigner, Verifier}, RsaPrivateKey};
+use rsa::{
+    pkcs1::EncodeRsaPublicKey, pkcs8::LineEnding, pss::{BlindedSigningKey, Signature, VerifyingKey}, sha2::Sha256, signature::{Keypair, RandomizedSigner, Verifier}, RsaPrivateKey
+};
 
-pub struct CertificateSigningService
-{
+use crate::types::types::DeviceCapabilityStatus;
+
+pub struct CertificateSigningService {
     signing_key: BlindedSigningKey<Sha256>,
     pub verification_key: VerifyingKey<Sha256>,
 }
@@ -17,8 +20,11 @@ impl CertificateSigningService {
     }
     pub async fn sign_data(&self, data: String) -> String {
         let mut rng = rand::thread_rng();
-        return self.signing_key.sign_with_rng(&mut rng, data.as_bytes()).to_string();
-    } 
+        return self
+            .signing_key
+            .sign_with_rng(&mut rng, data.as_bytes())
+            .to_string();
+    }
     pub async fn verify_certificate(
         &self,
         certificate: String,
@@ -31,18 +37,47 @@ impl CertificateSigningService {
     }
 }
 
-pub fn verify_signature(verifying_key: &VerifyingKey<Sha256>, data: String, signature: String) -> bool {
-        let signature = Signature::try_from(signature.as_bytes());
-        let signature = match signature {
-            Ok(r) => r,
-            Err(e) => {
-                eprintln!("Unable to parse signature from request");
-                return false;
-            }
-        };
+pub fn verify_signature(
+    verifying_key: &VerifyingKey<Sha256>,
+    certificate: &String,
+    updated_capabilities: &Vec<DeviceCapabilityStatus>,
+    client_timestamp: u64,
+    signature: Vec<u8>,
+) -> bool {
+    let server_timestamp = get_timestamp();
 
-        match verifying_key.verify(data.as_bytes(), &signature) {
-            Ok(_) => true,
-            Err(_) => false,
-        }
+    if server_timestamp - client_timestamp > 60 {
+        println!("Signature has expired");
+        return false;
     }
+
+    let capability_string = updated_capabilities
+        .iter()
+        .map(|capability| capability.capability.clone())
+        .reduce(|acc, capability| {
+            acc + &capability
+        })
+        .unwrap_or(String::from(""));
+
+    let to_check_against = client_timestamp.to_string() + &capability_string + certificate;
+
+    let signature = Signature::try_from(&*signature);
+    let signature = match signature {
+        Ok(r) => r,
+        Err(_e) => {
+            eprintln!("Unable to parse signature from request");
+            return false;
+        }
+    };
+
+    match verifying_key.verify(to_check_against.as_bytes(), &signature) {
+        Ok(_) => true,
+        Err(_) => false,
+    }
+}
+
+fn get_timestamp() -> u64 {
+    use std::time::SystemTime;
+    let since_epoch = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    since_epoch.as_secs()
+}

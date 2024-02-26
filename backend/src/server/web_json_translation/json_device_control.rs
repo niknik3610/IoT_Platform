@@ -1,11 +1,10 @@
-use actix_web::{Responder, HttpResponse};
+use actix_web::{HttpResponse, Responder};
 
 use crate::web_json_translation::json_translation::TranslationClientState;
 
 pub mod frontend_device_control {
     tonic::include_proto!("frontend.devicecontrol");
 }
-
 
 #[actix_web::options("/frontend/device_control")]
 pub async fn json_device_control_options() -> impl Responder {
@@ -17,13 +16,14 @@ pub async fn json_device_control(
     req_body: String,
     state: actix_web::web::Data<TranslationClientState>,
 ) -> impl Responder {
-    let request: frontend_device_control::DeviceControlRequest = match serde_json::from_str(&req_body) {
-        Ok(r) => r,
-        Err(e) => {
-            eprintln!("{e}");
-            return HttpResponse::BadRequest().body("malformed request");
-        }
-    };
+    let request: frontend_device_control::DeviceControlRequest =
+        match serde_json::from_str(&req_body) {
+            Ok(r) => r,
+            Err(e) => {
+                eprintln!("{e}");
+                return HttpResponse::BadRequest().body("malformed request");
+            }
+        };
     let response = {
         let mut client = state.device_control_client.lock().await;
         client.control_device(request).await

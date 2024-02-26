@@ -10,7 +10,8 @@ message PollRequest {
     string certificate = 1;
     string uuid = 2;
     repeated iot.types.DeviceCapabilityStatus updatedCapabilities = 3;
-    string signature = 4;
+    bytes signature = 4;
+    uint64 timestamp = 5;
 };
 
 message PollResponse {

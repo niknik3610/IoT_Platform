@@ -16,7 +16,7 @@ use futures_util::FutureExt;
 use tonic::transport::Server;
 use web_json_translation::json_registration;
 
-use crate::web_json_translation::{json_get_devices, json_device_control};
+use crate::web_json_translation::{json_device_control, json_get_devices};
 
 pub mod certificate_signing;
 pub mod device;
@@ -49,8 +49,10 @@ async fn main() -> anyhow::Result<()> {
 
     //todo: let user input a custom ip + port (idk for what reason tho)
     let local_ip = local_ip().map_err(|e| {
-        eprintln!("Error getting local ip address
-                  You can try setting it manually using --set-ip:{{ip}}"); 
+        eprintln!(
+            "Error getting local ip address
+                  You can try setting it manually using --set-ip:{{ip}}"
+        );
         e
     })?;
 
@@ -69,7 +71,7 @@ async fn main() -> anyhow::Result<()> {
         private_key = rsa::RsaPrivateKey::new(&mut rng, RSA_KEY_SIZE).unwrap();
     }
 
-    let signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
+    let _signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
     let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
     let signing_service = certificate_signing::CertificateSigningService::new(private_key.clone());
@@ -97,8 +99,7 @@ async fn main() -> anyhow::Result<()> {
         device_control_service::FrontendDeviceControlHandler::new(events.clone());
 
     let grpc_server = Server::builder()
-        .add_service(
-            registration_service_server::RegistrationServiceServer::new(
+        .add_service(registration_service_server::RegistrationServiceServer::new(
             registration_service,
         ))
         .add_service(
@@ -150,7 +151,10 @@ async fn run_json_frontend(grpc_address: SocketAddr) -> anyhow::Result<actix_web
     let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
     let json_state = loop {
         interval.tick().await;
-        let result = web_json_translation::json_translation::TranslationClientState::new(grpc_address.clone()).await;
+        let result = web_json_translation::json_translation::TranslationClientState::new(
+            grpc_address.clone(),
+        )
+        .await;
         match result {
             Ok(r) => break r,
             Err(e) => {

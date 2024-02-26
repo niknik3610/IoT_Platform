@@ -1,9 +1,10 @@
-use rsa::{pkcs1v15::{Signature, SigningKey}, sha2::{digest::{FixedOutput, FixedOutputReset, HashMarker}, Sha256}, Pkcs1v15Sign, RsaPrivateKey};
+use rsa::sha2::Sha256;
 use tonic::transport::Channel;
-use rsa::signature::{Keypair,RandomizedSigner, SignatureEncoding, Verifier};
-use rsa::pss::BlindedSigningKey;
+use rsa::signature::{Keypair, RandomizedSigner, SignatureEncoding, Verifier};
+use rsa::pss::{BlindedSigningKey, Signature};
 
 use self::polling::{PollingOption, Update};
+use crate::client_types::types::DeviceCapabilityStatus;
 use crate::{
     client::ThreadSafeMutable, client_connection::ServerConnection, client_types::types
 };
@@ -35,12 +36,6 @@ impl PollingService {
         }
     }
     pub async fn get_updates(&mut self, certificate: String, uuid: String) -> Option<Vec<Update>> {
-        let signature = {
-            let mut rng = rand::thread_rng();
-            let data = b"hello world";
-            self.signing_key.sign_with_rng(&mut rng, data).to_string()
-        };
-
         let updated_capabilities = {
             let mut update = self.updated.lock().await;
 
@@ -52,6 +47,9 @@ impl PollingService {
             }
         };
 
+        let timestamp = get_timestamp();
+        let signature = create_signature(&self.signing_key, &certificate, &updated_capabilities, &timestamp);
+
         let updates = self
             .client
             .poll_for_update(tonic::Request::new(polling::PollRequest {
@@ -59,6 +57,7 @@ impl PollingService {
                 uuid,
                 updated_capabilities,
                 signature,
+                timestamp
             }))
             .await;
 
@@ -87,4 +86,25 @@ impl PollingService {
             }
         }
     }
+}
+
+fn get_timestamp() -> u64 {
+    use std::time::SystemTime;
+    let since_epoch = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    since_epoch.as_secs()
+}
+
+fn create_signature(signing_key: &BlindedSigningKey<Sha256>, certificate: &String, updated_capabilities: &Vec<DeviceCapabilityStatus>, timestamp: &u64) -> Vec<u8> {
+    let capability_string = updated_capabilities
+        .iter()
+        .map(|capability| capability.capability.clone())
+        .reduce(|acc, capability| {
+            acc + &capability
+        })
+        .unwrap_or(String::from(""));
+
+
+    let to_sign = timestamp.to_string() + &capability_string + certificate;
+    let mut rng = rand::thread_rng();
+    signing_key.sign_with_rng(&mut rng, to_sign.as_bytes()).to_vec()
 }

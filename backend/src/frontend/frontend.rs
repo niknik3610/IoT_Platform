@@ -1,6 +1,6 @@
+use clap::Parser;
 use frontend_registration::registration_service::Device;
 use tonic::transport::Channel;
-use clap::Parser;
 
 use crate::{
     frontend_device_control::frontend_device_control::{
@@ -31,7 +31,9 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
     if args.server_address == "" {
-        return Err(anyhow::anyhow!("Error: You must include the Server's address using -s {{serverAddress}}:{{port}}"));
+        return Err(anyhow::anyhow!(
+            "Error: You must include the Server's address using -s {{serverAddress}}:{{port}}"
+        ));
     }
     let server_address = if !args.server_address.starts_with("https://") {
         String::from("https://") + &args.server_address
@@ -40,8 +42,10 @@ async fn main() -> anyhow::Result<()> {
     };
 
     println!("Connecting...");
-    let mut registration_client = FrontendRegistrationServiceClient::connect(server_address.clone()).await?;
-    let mut control_client = FrontendDeviceControlServiceClient::connect(server_address.clone()).await?;
+    let mut registration_client =
+        FrontendRegistrationServiceClient::connect(server_address.clone()).await?;
+    let mut control_client =
+        FrontendDeviceControlServiceClient::connect(server_address.clone()).await?;
 
     let response = registration_client
         .register(RegistrationRequest {

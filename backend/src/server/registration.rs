@@ -75,19 +75,21 @@ impl RegistrationService for ClientRegistrationHandler {
             .into_iter()
             .partition(|capability| capability.available);
 
+        let certificate = new_certificate.await;
         let device = device::Device::new(
             request.name,
             active_capabilities,
             inactive_capabilities,
             client_id,
             device_public_key.clone(),
-            VerifyingKey::<Sha256>::from(device_public_key)
+            VerifyingKey::<Sha256>::from(device_public_key),
+            certificate.clone()
         );
 
         let response = registration_service::RegistrationResponse {
             public_key: self.string_public_key.clone(),
             client_id: device.stringified_uuid.clone(),
-            certificate: new_certificate.await,
+            certificate: certificate
         };
 
         {

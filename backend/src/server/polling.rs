@@ -5,7 +5,6 @@ use self::polling_service::{
 use crate::types::types::{self, DeviceCapabilityStatus};
 use crate::{certificate_signing, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
 use fxhash::FxHashMap;
-use rsa::{Pkcs1v15Sign, RsaPrivateKey};
 use tonic::async_trait;
 
 pub mod polling_service {
@@ -20,11 +19,11 @@ pub struct DeviceEvent {
 }
 impl DeviceEvent {
     pub fn new(capability: String, requester_uuid: String, value: Option<i32>) -> Self {
-        return DeviceEvent {
+        DeviceEvent {
             capability,
             _requester_uuid: requester_uuid,
             value,
-        };
+        }
     }
     pub fn to_update(&self) -> polling_service::Update {
         let value;
@@ -39,11 +38,11 @@ impl DeviceEvent {
             }
         };
 
-        return polling_service::Update {
+        polling_service::Update {
             capability: self.capability.clone(),
             has_value,
             value,
-        };
+        }
     }
 }
 
@@ -72,7 +71,7 @@ impl RequestUpdateService for PollingHandler {
         &self,
         request: tonic::Request<PollRequest>,
     ) -> RPCFunctionResult<PollResponse> {
-        let request = request.into_inner(); 
+        let request = request.into_inner();
         let device_uuid = request.uuid;
         {
             let mut connected_devices = self.connected_devices.lock().await;
@@ -88,8 +87,13 @@ impl RequestUpdateService for PollingHandler {
                 }
             };
 
-            let padding = Pkcs1v15Sign::new_unprefixed();
-            let signature_valid = certificate_signing::verify_signature(&device.device_verification_key, String::from("hello world"), request.signature);
+            let signature_valid = certificate_signing::verify_signature(
+                &device.device_verification_key,
+                &device.certificate,
+                &request.updated_capabilities,
+                request.timestamp,
+                request.signature,
+            );
             println!("Signature is valid: {}", signature_valid);
 
             if !request.updated_capabilities.is_empty() {

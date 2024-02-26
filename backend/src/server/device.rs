@@ -1,4 +1,5 @@
 use rsa::{pss::VerifyingKey, sha2::Sha256};
+use tonic::transport::Certificate;
 use uuid::Uuid;
 
 use crate::types::types::DeviceCapabilityStatus;
@@ -11,7 +12,8 @@ pub struct Device {
     pub active_capabilities: Vec<DeviceCapabilityStatus>,
     pub inactive_capabilities: Vec<DeviceCapabilityStatus>,
     pub device_public_key: rsa::RsaPublicKey,
-    pub device_verification_key: VerifyingKey<Sha256>
+    pub device_verification_key: VerifyingKey<Sha256>,
+    pub certificate: String
 }
 impl Device {
     pub fn new(
@@ -20,17 +22,19 @@ impl Device {
         inactive_capabilities: Vec<DeviceCapabilityStatus>,
         uuid: Uuid,
         device_public_key: rsa::RsaPublicKey,
-        device_verification_key: VerifyingKey<Sha256>
+        device_verification_key: VerifyingKey<Sha256>,
+        certificate: String
     ) -> self::Device {
-        return Device {
+        Device {
             name,
             uuid,
             stringified_uuid: uuid.to_string(),
             active_capabilities,
             inactive_capabilities,
             device_public_key,
-            device_verification_key
-        };
+            device_verification_key,
+            certificate
+        }
     }
     pub fn replace_capabilities(
         &mut self,
