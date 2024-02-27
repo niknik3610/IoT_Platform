@@ -2,7 +2,7 @@ use fxhash::FxHashMap;
 use rsa::pss::VerifyingKey;
 use rsa::sha2::Sha256;
 use rsa::RsaPublicKey;
-use std::borrow::Borrow;
+
 use std::sync::Arc;
 use tonic::async_trait;
 use uuid::Uuid;

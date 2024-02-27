@@ -1,11 +1,10 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
 use rsa::{
-    pss::{BlindedSigningKey, SigningKey},
+    pss::{BlindedSigningKey},
     sha2::Sha256,
-    signature::Keypair,
 };
 
 use crate::{

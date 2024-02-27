@@ -1,7 +1,7 @@
 use rsa::pss::{BlindedSigningKey, Signature, VerifyingKey};
-use rsa::sha2::digest::generic_array::iter;
+
 use rsa::sha2::Sha256;
-use rsa::signature::{Keypair, RandomizedSigner, SignatureEncoding, Verifier};
+use rsa::signature::{RandomizedSigner, SignatureEncoding, Verifier};
 use tonic::transport::Channel;
 
 use self::polling::{PollResponse, PollingOption, Update};

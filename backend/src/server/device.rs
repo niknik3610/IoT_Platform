@@ -1,5 +1,5 @@
 use rsa::{pss::VerifyingKey, sha2::Sha256};
-use tonic::transport::Certificate;
+
 use uuid::Uuid;
 
 use crate::types::types::DeviceCapabilityStatus;
