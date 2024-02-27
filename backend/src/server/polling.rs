@@ -2,6 +2,7 @@ use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
+use crate::certificate_signing::CertificateSigningService;
 use crate::types::types::{self, DeviceCapabilityStatus};
 use crate::{certificate_signing, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
 use fxhash::FxHashMap;
@@ -50,18 +51,21 @@ pub struct PollingHandler {
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
     events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
     frontend_cache_valid: ThreadSafeMutable<bool>,
+    certificate_signing_service: ThreadSafeMutable<CertificateSigningService>,
 }
 impl PollingHandler {
     pub fn new(
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
+        certificate_signing_service: ThreadSafeMutable<CertificateSigningService>
     ) -> Self {
-        return PollingHandler {
+        PollingHandler {
             connected_devices,
             events,
             frontend_cache_valid,
-        };
+            certificate_signing_service
+        }
     }
 }
 
@@ -73,6 +77,7 @@ impl RequestUpdateService for PollingHandler {
     ) -> RPCFunctionResult<PollResponse> {
         let request = request.into_inner();
         let device_uuid = request.uuid;
+        let device_certificate;
         {
             let mut connected_devices = self.connected_devices.lock().await;
             let device = connected_devices.get_mut(&device_uuid);
@@ -82,11 +87,12 @@ impl RequestUpdateService for PollingHandler {
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::DeviceNotFound as i32,
                         updates: Vec::new(),
-                        signature: String::from(""), //todo
+                        signature: vec![],
+                        timestamp: certificate_signing::get_timestamp(),
                     }));
                 }
             };
-
+            
             let signature_valid = certificate_signing::verify_signature(
                 &device.device_verification_key,
                 &device.certificate,
@@ -94,8 +100,15 @@ impl RequestUpdateService for PollingHandler {
                 request.timestamp,
                 request.signature,
             );
-            println!("Signature is valid: {}", signature_valid);
 
+            if !signature_valid {
+                return Ok(tonic::Response::new(PollResponse {
+                    has_update: PollingOption::InvalidSignature as i32,
+                    updates: Vec::new(),
+                    signature: vec![],
+                    timestamp: certificate_signing::get_timestamp(),
+                }));
+            }
             if !request.updated_capabilities.is_empty() {
                 let (active_capabilities, inactive_capabilities): (
                     Vec<DeviceCapabilityStatus>,
@@ -108,6 +121,8 @@ impl RequestUpdateService for PollingHandler {
                 let mut frontend_cache_valid = self.frontend_cache_valid.lock().await;
                 *frontend_cache_valid = false;
             }
+
+            device_certificate = device.certificate.clone();
         }
         {
             let mut updates = self.events.lock().await;
@@ -116,21 +131,33 @@ impl RequestUpdateService for PollingHandler {
             let updates = match updates {
                 Some(r) => r,
                 None => {
+                    let signature = fields_to_signature_data(&vec![], &device_certificate);
+                    let signing_service = self.certificate_signing_service.lock().await;
+                    let (signature, timestamp) = signing_service.sign_data(signature);
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::None as i32,
                         updates: Vec::new(),
-                        signature: String::from(""),
+                        signature,
+                        timestamp,
                     }));
                 }
             };
 
             if updates.is_empty() {
+                let signature = fields_to_signature_data(&updates, &device_certificate);
+                let signing_service = self.certificate_signing_service.lock().await;
+                let (signature, timestamp) = signing_service.sign_data(signature);
+
                 return Ok(tonic::Response::new(PollResponse {
                     has_update: PollingOption::None as i32,
                     updates: Vec::new(),
-                    signature: String::from(""),
+                    signature,
+                    timestamp,
                 }));
             };
+            let signature = fields_to_signature_data(&updates, &device_certificate);
+            let signing_service = self.certificate_signing_service.lock().await;
+            let (signature, timestamp) = signing_service.sign_data(signature);
 
             let updates_clone = updates
                 .clone()
@@ -142,8 +169,18 @@ impl RequestUpdateService for PollingHandler {
             return Ok(tonic::Response::new(PollResponse {
                 has_update: PollingOption::Some as i32,
                 updates: updates_clone,
-                signature: String::from(""),
+                signature,
+                timestamp
             }));
         }
     }
+}
+fn fields_to_signature_data(updates: &Vec<DeviceEvent>, certificate: &String) -> String {
+    let updates = updates
+        .iter()
+        .map(|update| update.capability.clone())
+        .reduce(|acc, capability| acc + &capability)
+        .unwrap_or(String::from(""));
+
+    certificate.clone() + &updates
 }

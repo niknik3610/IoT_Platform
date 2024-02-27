@@ -132,7 +132,7 @@ where
 }
 
 pub trait UserDefinedState: Default {}
-
+//todo: add capabilities to the capabilities struct here
 pub struct ClientState<S: UserDefinedState> {
     capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
     user_state: S,

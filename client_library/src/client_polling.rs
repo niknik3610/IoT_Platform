@@ -71,6 +71,10 @@ impl PollingService {
         };
 
         match PollingOption::try_from(response.has_update).unwrap() {
+            PollingOption::InvalidSignature => {
+                eprintln!("Signature sent to server was invalid, retrying");
+                return None;
+            },
             PollingOption::None => return None,
             PollingOption::Some => return Some(response.updates),
             PollingOption::Unknown => {

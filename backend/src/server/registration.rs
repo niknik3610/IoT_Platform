@@ -2,6 +2,7 @@ use fxhash::FxHashMap;
 use rsa::pss::VerifyingKey;
 use rsa::sha2::Sha256;
 use rsa::RsaPublicKey;
+use std::borrow::Borrow;
 use std::sync::Arc;
 use tonic::async_trait;
 use uuid::Uuid;
@@ -27,7 +28,7 @@ fn generate_new_id() -> Uuid {
 pub struct ClientRegistrationHandler {
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
     connected_device_uuids: ThreadSafeMutable<Vec<String>>,
-    signing_service: certificate_signing::CertificateSigningService,
+    signing_service: ThreadSafeMutable<certificate_signing::CertificateSigningService>,
     _public_key: rsa::RsaPublicKey,
     string_public_key: String,
     _device_count: ThreadSafeMutable<u128>,
@@ -37,13 +38,13 @@ impl ClientRegistrationHandler {
     pub fn new(
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         device_count: ThreadSafeMutable<u128>,
-        signing_service: CertificateSigningService,
+        signing_service: ThreadSafeMutable<CertificateSigningService>,
         public_key: RsaPublicKey,
         connected_device_uuids: ThreadSafeMutable<Vec<String>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
     ) -> ClientRegistrationHandler {
         let string_public_key = serde_json::to_string(&public_key).unwrap();
-        return ClientRegistrationHandler {
+        ClientRegistrationHandler {
             connected_devices,
             connected_device_uuids,
             _public_key: public_key,
@@ -51,7 +52,7 @@ impl ClientRegistrationHandler {
             _device_count: device_count,
             signing_service,
             frontend_cache_valid,
-        };
+        }
     }
 }
 #[async_trait]
@@ -64,7 +65,11 @@ impl RegistrationService for ClientRegistrationHandler {
         let client_id: Uuid = generate_new_id();
 
         let csr = client_id.to_string() + &request.public_key;
-        let new_certificate = self.signing_service.sign_data(csr);
+
+        let new_certificate = {
+            let signing_service = self.signing_service.lock().await;
+            signing_service.gen_certificate(&csr)
+        };
 
         let capabilites = request.capabilities;
 
@@ -75,7 +80,7 @@ impl RegistrationService for ClientRegistrationHandler {
             .into_iter()
             .partition(|capability| capability.available);
 
-        let certificate = new_certificate.await;
+        let certificate = new_certificate;
         let device = device::Device::new(
             request.name,
             active_capabilities,
@@ -83,13 +88,13 @@ impl RegistrationService for ClientRegistrationHandler {
             client_id,
             device_public_key.clone(),
             VerifyingKey::<Sha256>::from(device_public_key),
-            certificate.clone()
+            certificate.to_owned()
         );
 
         let response = registration_service::RegistrationResponse {
             public_key: self.string_public_key.clone(),
             client_id: device.stringified_uuid.clone(),
-            certificate: certificate
+            certificate: certificate.to_owned()
         };
 
         {

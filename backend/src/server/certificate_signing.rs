@@ -1,9 +1,13 @@
 use rsa::{
-    pkcs1::EncodeRsaPublicKey, pkcs8::LineEnding, pss::{BlindedSigningKey, Signature, VerifyingKey}, sha2::Sha256, signature::{Keypair, RandomizedSigner, Verifier}, RsaPrivateKey
+     pss::{BlindedSigningKey, Signature, VerifyingKey}, 
+     sha2::Sha256, 
+     signature::{Keypair, RandomizedSigner, SignatureEncoding, Verifier}, 
+     RsaPrivateKey
 };
 
 use crate::types::types::DeviceCapabilityStatus;
 
+const SIGNATURE_EXPIRATION_SECONDS: u64 = 60;
 pub struct CertificateSigningService {
     signing_key: BlindedSigningKey<Sha256>,
     pub verification_key: VerifyingKey<Sha256>,
@@ -18,22 +22,36 @@ impl CertificateSigningService {
             verification_key,
         }
     }
-    pub async fn sign_data(&self, data: String) -> String {
+    pub fn gen_certificate(&self, csr: &String) -> String {
         let mut rng = rand::thread_rng();
-        return self
+        let certificate = self
             .signing_key
-            .sign_with_rng(&mut rng, data.as_bytes())
+            .sign_with_rng(&mut rng, csr.as_bytes())
             .to_string();
+        certificate
     }
-    pub async fn verify_certificate(
+    pub fn verify_certificate(
         &self,
         certificate: String,
         device_pub_key: String,
         device_uuid: String,
     ) -> bool {
         let csr = device_uuid + &device_pub_key;
-        let comparison_certificate = self.sign_data(csr).await;
-        return certificate == comparison_certificate;
+        let mut rng = rand::thread_rng();
+        let comparision_certificate = self
+            .signing_key
+            .sign_with_rng(&mut rng, csr.as_bytes())
+            .to_string();
+
+        certificate == comparision_certificate
+    }
+    ///returns the signature and timestamp of the signature 
+    pub fn sign_data(&self, data: String) -> (Vec<u8>, u64) {
+        let timestamp = get_timestamp();
+        let data = data + &timestamp.to_string();
+        let mut rng = rand::thread_rng();
+        let signed = self.signing_key.sign_with_rng(&mut rng, data.as_bytes());
+        (signed.to_vec(), timestamp)
     }
 }
 
@@ -46,7 +64,7 @@ pub fn verify_signature(
 ) -> bool {
     let server_timestamp = get_timestamp();
 
-    if server_timestamp - client_timestamp > 60 {
+    if server_timestamp - client_timestamp > SIGNATURE_EXPIRATION_SECONDS {
         println!("Signature has expired");
         return false;
     }
@@ -76,7 +94,7 @@ pub fn verify_signature(
     }
 }
 
-fn get_timestamp() -> u64 {
+pub fn get_timestamp() -> u64 {
     use std::time::SystemTime;
     let since_epoch = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
     since_epoch.as_secs()

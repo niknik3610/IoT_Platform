@@ -75,10 +75,11 @@ async fn main() -> anyhow::Result<()> {
 
     let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
     let signing_service = certificate_signing::CertificateSigningService::new(private_key.clone());
+    let signing_service =  ThreadSafeMutable::new(tokio::sync::Mutex::new(signing_service));
     let registration_service = registration::ClientRegistrationHandler::new(
         connected_devices.clone(),
         device_count,
-        signing_service,
+        signing_service.clone(),
         private_key.to_public_key(),
         connected_device_uuids.clone(),
         frontend_cache_valid.clone(),
@@ -89,6 +90,7 @@ async fn main() -> anyhow::Result<()> {
         connected_devices.clone(),
         events.clone(),
         frontend_cache_valid.clone(),
+        signing_service,
     );
     let frontend_registration_service = registration::FrontendRegistrationHandler::new(
         connected_devices.clone(),
