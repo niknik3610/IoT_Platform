@@ -88,13 +88,13 @@ impl RegistrationService for ClientRegistrationHandler {
             client_id,
             device_public_key.clone(),
             VerifyingKey::<Sha256>::from(device_public_key),
-            certificate.to_owned()
+            certificate.to_owned(),
         );
 
         let response = registration_service::RegistrationResponse {
             public_key: self.string_public_key.clone(),
             client_id: device.stringified_uuid.clone(),
-            certificate: certificate.to_owned()
+            certificate: certificate.to_owned(),
         };
 
         {

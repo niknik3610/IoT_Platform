@@ -2,7 +2,11 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
-use rsa::{pss::{BlindedSigningKey, SigningKey}, sha2::Sha256, signature::Keypair};
+use rsa::{
+    pss::{BlindedSigningKey, SigningKey},
+    sha2::Sha256,
+    signature::Keypair,
+};
 
 use crate::{
     client_config::ParsedConfig, client_polling, client_registration,
@@ -60,9 +64,8 @@ where
         //unwrap is guaranteed to succeed due to above check
         let server_ip = match self.server_ip {
             Some(v) => v,
-            None => config.server_ip.unwrap()
+            None => config.server_ip.unwrap(),
         };
-
 
         let capabilities = config.capabilities;
 
@@ -88,7 +91,7 @@ where
         {
             let certificate = client_connection_details.security_certificate.clone();
             let uuid = client_connection_details.uuid.clone();
-            
+
             let has_update = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
 
             let mut interval =
@@ -102,7 +105,7 @@ where
                 capabilities.clone(),
                 has_update.clone(),
                 client_connection_details,
-                signing_key
+                signing_key,
             );
 
             loop {

@@ -13,7 +13,7 @@ pub struct Device {
     pub inactive_capabilities: Vec<DeviceCapabilityStatus>,
     pub device_public_key: rsa::RsaPublicKey,
     pub device_verification_key: VerifyingKey<Sha256>,
-    pub certificate: String
+    pub certificate: String,
 }
 impl Device {
     pub fn new(
@@ -23,7 +23,7 @@ impl Device {
         uuid: Uuid,
         device_public_key: rsa::RsaPublicKey,
         device_verification_key: VerifyingKey<Sha256>,
-        certificate: String
+        certificate: String,
     ) -> self::Device {
         Device {
             name,
@@ -33,7 +33,7 @@ impl Device {
             inactive_capabilities,
             device_public_key,
             device_verification_key,
-            certificate
+            certificate,
         }
     }
     pub fn replace_capabilities(

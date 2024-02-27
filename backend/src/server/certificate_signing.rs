@@ -1,13 +1,14 @@
 use rsa::{
-     pss::{BlindedSigningKey, Signature, VerifyingKey}, 
-     sha2::Sha256, 
-     signature::{Keypair, RandomizedSigner, SignatureEncoding, Verifier}, 
-     RsaPrivateKey
+    pss::{BlindedSigningKey, Signature, VerifyingKey},
+    sha2::Sha256,
+    signature::{Keypair, RandomizedSigner, SignatureEncoding, Verifier},
+    RsaPrivateKey,
 };
 
 use crate::types::types::DeviceCapabilityStatus;
 
 const SIGNATURE_EXPIRATION_SECONDS: u64 = 60;
+
 pub struct CertificateSigningService {
     signing_key: BlindedSigningKey<Sha256>,
     pub verification_key: VerifyingKey<Sha256>,
@@ -45,10 +46,10 @@ impl CertificateSigningService {
 
         certificate == comparision_certificate
     }
-    ///returns the signature and timestamp of the signature 
+    ///returns the signature and timestamp of the signature
     pub fn sign_data(&self, data: String) -> (Vec<u8>, u64) {
         let timestamp = get_timestamp();
-        let data = data + &timestamp.to_string();
+        let data = timestamp.to_string() + &data;
         let mut rng = rand::thread_rng();
         let signed = self.signing_key.sign_with_rng(&mut rng, data.as_bytes());
         (signed.to_vec(), timestamp)
@@ -65,16 +66,14 @@ pub fn verify_signature(
     let server_timestamp = get_timestamp();
 
     if server_timestamp - client_timestamp > SIGNATURE_EXPIRATION_SECONDS {
-        println!("Signature has expired");
+        println!("Client signature has expired");
         return false;
     }
 
     let capability_string = updated_capabilities
         .iter()
         .map(|capability| capability.capability.clone())
-        .reduce(|acc, capability| {
-            acc + &capability
-        })
+        .reduce(|acc, capability| acc + &capability)
         .unwrap_or(String::from(""));
 
     let to_check_against = client_timestamp.to_string() + &capability_string + certificate;
@@ -96,6 +95,8 @@ pub fn verify_signature(
 
 pub fn get_timestamp() -> u64 {
     use std::time::SystemTime;
-    let since_epoch = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap();
+    let since_epoch = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
     since_epoch.as_secs()
 }

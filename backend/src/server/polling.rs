@@ -58,13 +58,13 @@ impl PollingHandler {
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
-        certificate_signing_service: ThreadSafeMutable<CertificateSigningService>
+        certificate_signing_service: ThreadSafeMutable<CertificateSigningService>,
     ) -> Self {
         PollingHandler {
             connected_devices,
             events,
             frontend_cache_valid,
-            certificate_signing_service
+            certificate_signing_service,
         }
     }
 }
@@ -92,7 +92,7 @@ impl RequestUpdateService for PollingHandler {
                     }));
                 }
             };
-            
+
             let signature_valid = certificate_signing::verify_signature(
                 &device.device_verification_key,
                 &device.certificate,
@@ -170,7 +170,7 @@ impl RequestUpdateService for PollingHandler {
                 has_update: PollingOption::Some as i32,
                 updates: updates_clone,
                 signature,
-                timestamp
+                timestamp,
             }));
         }
     }
