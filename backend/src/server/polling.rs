@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
@@ -51,14 +53,14 @@ pub struct PollingHandler {
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
     events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
     frontend_cache_valid: ThreadSafeMutable<bool>,
-    certificate_signing_service: ThreadSafeMutable<CertificateSigningService>,
+    certificate_signing_service: Arc<CertificateSigningService>,
 }
 impl PollingHandler {
     pub fn new(
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
-        certificate_signing_service: ThreadSafeMutable<CertificateSigningService>,
+        certificate_signing_service: Arc<CertificateSigningService>,
     ) -> Self {
         PollingHandler {
             connected_devices,
@@ -132,8 +134,7 @@ impl RequestUpdateService for PollingHandler {
                 Some(r) => r,
                 None => {
                     let signature = fields_to_signature_data(&vec![], &device_certificate);
-                    let signing_service = self.certificate_signing_service.lock().await;
-                    let (signature, timestamp) = signing_service.sign_data(signature);
+                    let (signature, timestamp) = self.certificate_signing_service.sign_data(signature);
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::None as i32,
                         updates: Vec::new(),
@@ -145,8 +146,7 @@ impl RequestUpdateService for PollingHandler {
 
             if updates.is_empty() {
                 let signature = fields_to_signature_data(&updates, &device_certificate);
-                let signing_service = self.certificate_signing_service.lock().await;
-                let (signature, timestamp) = signing_service.sign_data(signature);
+                let (signature, timestamp) = self.certificate_signing_service.sign_data(signature);
 
                 return Ok(tonic::Response::new(PollResponse {
                     has_update: PollingOption::None as i32,
@@ -156,8 +156,7 @@ impl RequestUpdateService for PollingHandler {
                 }));
             };
             let signature = fields_to_signature_data(&updates, &device_certificate);
-            let signing_service = self.certificate_signing_service.lock().await;
-            let (signature, timestamp) = signing_service.sign_data(signature);
+            let (signature, timestamp) = self.certificate_signing_service.sign_data(signature);
 
             let updates_clone = updates
                 .clone()

@@ -7,7 +7,7 @@ use rsa::{
 
 use crate::types::types::DeviceCapabilityStatus;
 
-const SIGNATURE_EXPIRATION_SECONDS: u64 = 60;
+const SIGNATURE_EXPIRATION_SECONDS: u64 = 10;
 
 pub struct CertificateSigningService {
     signing_key: BlindedSigningKey<Sha256>,

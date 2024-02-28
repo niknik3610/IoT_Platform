@@ -28,7 +28,7 @@ fn generate_new_id() -> Uuid {
 pub struct ClientRegistrationHandler {
     connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
     connected_device_uuids: ThreadSafeMutable<Vec<String>>,
-    signing_service: ThreadSafeMutable<certificate_signing::CertificateSigningService>,
+    signing_service: Arc<CertificateSigningService>,
     _public_key: rsa::RsaPublicKey,
     string_public_key: String,
     _device_count: ThreadSafeMutable<u128>,
@@ -38,7 +38,7 @@ impl ClientRegistrationHandler {
     pub fn new(
         connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
         device_count: ThreadSafeMutable<u128>,
-        signing_service: ThreadSafeMutable<CertificateSigningService>,
+        signing_service: Arc<CertificateSigningService>,
         public_key: RsaPublicKey,
         connected_device_uuids: ThreadSafeMutable<Vec<String>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
@@ -67,8 +67,7 @@ impl RegistrationService for ClientRegistrationHandler {
         let csr = client_id.to_string() + &request.public_key;
 
         let new_certificate = {
-            let signing_service = self.signing_service.lock().await;
-            signing_service.gen_certificate(&csr)
+            self.signing_service.gen_certificate(&csr)
         };
 
         let capabilites = request.capabilities;

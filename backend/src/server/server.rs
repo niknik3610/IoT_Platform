@@ -74,8 +74,8 @@ async fn main() -> anyhow::Result<()> {
     let _signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
     let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
-    let signing_service = certificate_signing::CertificateSigningService::new(private_key.clone());
-    let signing_service = ThreadSafeMutable::new(tokio::sync::Mutex::new(signing_service));
+    let signing_service = Arc::new(certificate_signing::CertificateSigningService::new(private_key.clone()));
+
     let registration_service = registration::ClientRegistrationHandler::new(
         connected_devices.clone(),
         device_count,
