@@ -77,6 +77,7 @@ impl RequestUpdateService for PollingHandler {
         &self,
         request: tonic::Request<PollRequest>,
     ) -> RPCFunctionResult<PollResponse> {
+        println!("polled");
         let request = request.into_inner();
         let device_uuid = request.uuid;
         let device_certificate;
@@ -94,16 +95,16 @@ impl RequestUpdateService for PollingHandler {
                     }));
                 }
             };
-
-            let signature_valid = certificate_signing::verify_signature(
-                &device.device_verification_key,
+            let signature_valid = CertificateSigningService::verify_signature_update_request(
                 &device.certificate,
                 &request.updated_capabilities,
                 request.timestamp,
                 request.signature,
+                &device.device_verification_key
             );
 
             if !signature_valid {
+                println!("Client sent an invalid signature");
                 return Ok(tonic::Response::new(PollResponse {
                     has_update: PollingOption::InvalidSignature as i32,
                     updates: Vec::new(),
