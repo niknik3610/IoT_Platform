@@ -56,7 +56,6 @@ impl CertificateSigningService {
         let data = timestamp.to_string() + &data;
         let mut rng = rand::thread_rng();
         let signed = self.signing_key.sign_with_rng(&mut rng, data.as_bytes());
-        println!("signed: {}", signed.to_string());
         (signed.to_vec(), timestamp)
     }
 

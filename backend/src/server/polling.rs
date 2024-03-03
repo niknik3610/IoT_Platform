@@ -77,7 +77,6 @@ impl RequestUpdateService for PollingHandler {
         &self,
         request: tonic::Request<PollRequest>,
     ) -> RPCFunctionResult<PollResponse> {
-        println!("polled");
         let request = request.into_inner();
         let device_uuid = request.uuid;
         let device_certificate;
