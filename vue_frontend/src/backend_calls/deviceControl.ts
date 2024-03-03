@@ -22,7 +22,6 @@ export async function controlDevice(
     try {
         const parsed_response: frontend.devicecontrol.DeviceControlResponse =
             await JSON.parse(await response.text());
-        console.log(parsed_response);
         return okAsync(parsed_response);
     } catch (e) {
         return errAsync(new Error("Received a Malformed Api Response"));

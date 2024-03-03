@@ -56,34 +56,37 @@ async function activateCapability(capability: string) {
 </script>
 
 <template>
-    <div class="lamp-control">
+    <div class="device-container">
         <h2 class="title">{{ deviceName }}</h2>
         <div
             v-for="capability in activeCapabilities"
             v-bind:key="capability.capability"
             class="button-container"
         >
-            <button @click="() => activateCapability(capability.capability)">
-                {{ capability.capability }}
+            <button class="capability-button" @click="activateCapability(capability.capability)">
+                <p style="color: black">{{ capability.capability }}</p>
             </button>
         </div>
     </div>
 </template>
 
 <style scoped>
-.lamp-control {
+.device-container {
     display: flex;
+    min-width: 200px;
     justify-content: center;
     flex-direction: column;
     padding: 20px;
-
+    justify-content: center;
     outline-style: solid;
     outline-color: hsla(160, 100%, 37%, 1);
     border-radius: 10px;
 }
 .title {
+    text-align: center;
     color: white;
     padding-bottom: 20px;
+    color: white;
 }
 .button-container {
     display: flex;
@@ -92,5 +95,23 @@ async function activateCapability(capability: string) {
 }
 button {
     align-self: center;
+}
+.capability-button {
+    background-color: white;
+    border: none;
+
+    padding: 9px 14px;
+
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+
+    border: 4px solid #00BD7E;
+    border-radius: 10px;
+}
+
+button:active { 
+    transform: scale(0.95); 
 }
 </style>

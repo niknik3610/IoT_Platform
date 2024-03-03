@@ -34,7 +34,6 @@ onMounted(async () => {
         let result = await proccessConnectedDevices();
         if (result.isOk()) {
             connectedDevices.value = result.value;
-            console.log("refreshed devices");
         } else if (result.isErr()) {
             console.error(result.error.message);
             //todo: add proper error message here
