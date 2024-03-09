@@ -1,0 +1,9 @@
+server_ip = "https://10.30.9.143:2302"
+device_name = "Unnamed Device"
+
+[capability."Turn On"]
+    available = true
+
+[capability."Turn Off"]
+    available = true
+
