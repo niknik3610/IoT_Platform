@@ -8,7 +8,7 @@ use self::polling::{PollResponse, PollingOption, Update};
 use crate::client_types::types::DeviceCapabilityStatus;
 use crate::{client::ThreadSafeMutable, client_connection::ServerConnection, client_types::types};
 
-const SIGNATURE_EXPIRATION_SECONDS: u64 = 10;
+const SIGNATURE_EXPIRATION_SECONDS: u64 = 30;
 
 pub mod polling {
     tonic::include_proto!("iot.polling");
@@ -142,7 +142,6 @@ fn verify_signature(
     certificate: &String,
 ) -> bool {
     let client_time_stamp = get_timestamp();
-
     if client_time_stamp - response.timestamp > SIGNATURE_EXPIRATION_SECONDS {
         println!("Server sent an expired signature");
         return false;
