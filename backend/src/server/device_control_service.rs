@@ -1,6 +1,6 @@
 use std::sync::{Mutex, Arc, RwLock};
 
-use crate::{polling::DeviceEvent, ThreadSafeMutable};
+use crate::polling::DeviceEvent;
 use fxhash::FxHashMap;
 use tonic::async_trait;
 
@@ -33,7 +33,7 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         let uuid = request.device_uuid;
         let capability_to_be_triggered = request.capability;
 
-        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), None);
+        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), None, request.timestamp);
         let insert = {
             let events = self.events.read().unwrap();
             let device_events = events.get(&uuid);

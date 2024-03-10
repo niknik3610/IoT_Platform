@@ -4,10 +4,10 @@ use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
-use crate::certificate_signing::CertificateSigningService;
+use crate::certificate_signing::{get_timestamp, CertificateSigningService};
 use crate::device::Device;
 use crate::types::types::{self, DeviceCapabilityStatus};
-use crate::{certificate_signing, RPCFunctionResult, ThreadSafeMutable};
+use crate::{certificate_signing, RPCFunctionResult, ThreadSafeMutable, PERF_TEST_LOGGING};
 use fxhash::FxHashMap;
 use tonic::async_trait;
 
@@ -20,13 +20,15 @@ pub struct DeviceEvent {
     capability: String,
     _requester_uuid: String,
     value: Option<i32>,
+    timestamp: u64,
 }
 impl DeviceEvent {
-    pub fn new(capability: String, requester_uuid: String, value: Option<i32>) -> Self {
+    pub fn new(capability: String, requester_uuid: String, value: Option<i32>, timestamp: u64) -> Self {
         DeviceEvent {
             capability,
             _requester_uuid: requester_uuid,
             value,
+            timestamp,
         }
     }
     pub fn to_update(&self) -> polling_service::Update {
@@ -180,10 +182,22 @@ impl RequestUpdateService for PollingHandler {
             let updates_clone = updates
                 .clone()
                 .iter()
-                .map(|update| update.to_update())
-                .collect();
-            updates.clear();
+                .map(|update| {
+                    if PERF_TEST_LOGGING {
+                        use std::time::SystemTime;
+                        let since_epoch = SystemTime::now()
+                            .duration_since(SystemTime::UNIX_EPOCH)
+                            .unwrap();
 
+                        let current_time = (since_epoch.as_millis() as u64) - update.timestamp;
+                        println!("{}", current_time)
+                    }
+                    update.to_update()
+                })
+                .collect();
+                updates.clear();
+
+            
             return Ok(tonic::Response::new(PollResponse {
                 has_update: PollingOption::Some as i32,
                 updates: updates_clone,

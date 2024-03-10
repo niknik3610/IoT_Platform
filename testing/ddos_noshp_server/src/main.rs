@@ -73,7 +73,8 @@ async fn main() -> anyhow::Result<()> {
                 if capability.available {
                     control_client.control_device(DeviceControlRequest {
                         capability: capability.capability.clone(),
-                        device_uuid: device.device_uuid.clone()
+                        device_uuid: device.device_uuid.clone(),
+                        timestamp: get_timestamp(),
                     }).await.unwrap();
                 }
             }
@@ -97,4 +98,12 @@ async fn get_connected_devices(
         .devices;
 
     Ok(connected_devices)
+}
+
+pub fn get_timestamp() -> u64 {
+    use std::time::SystemTime;
+    let since_epoch = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
+    since_epoch.as_millis() as u64
 }

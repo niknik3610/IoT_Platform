@@ -236,6 +236,7 @@ async fn control_device(
         .control_device(DeviceControlRequest {
             device_uuid: device_to_control.device_uuid.clone(),
             capability: chosen_capabillity.capability.clone(),
+            timestamp: get_timestamp(),
         })
         .await;
 
@@ -248,4 +249,12 @@ async fn control_device(
     }
 
     return Ok(());
+}
+
+pub fn get_timestamp() -> u64 {
+    use std::time::SystemTime;
+    let since_epoch = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap();
+    since_epoch.as_millis() as u64
 }
