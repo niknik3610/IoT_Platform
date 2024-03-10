@@ -119,7 +119,7 @@ async fn main() -> anyhow::Result<()> {
         )
         .serve_with_shutdown(grpc_address, tokio::signal::ctrl_c().map(drop));
 
-    println!("Started GRPC Server on {grpc_address}");
+    // println!("Started GRPC Server on {grpc_address}");
 
     let grpc_handle = tokio::spawn(async move { grpc_server.await });
 
@@ -136,7 +136,8 @@ async fn main() -> anyhow::Result<()> {
     };
 
     match grpc_handle.into_future().await {
-        Ok(_) => println!("The GRPC Server excited Succesfully"),
+        // Ok(_) => println!("The GRPC Server excited Succesfully"),
+        Ok(_) => {},
         Err(e) => {
             eprintln!("There was an error while running the GRPC Server:");
             eprintln!("{e}");

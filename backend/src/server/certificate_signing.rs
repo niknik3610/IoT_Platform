@@ -66,12 +66,14 @@ impl CertificateSigningService {
         signature: Vec<u8>,
         client_verification_key: &VerifyingKey<Sha256>
         ) -> bool {
-        let server_timestamp = get_timestamp();
-
-        if server_timestamp - client_timestamp > SIGNATURE_EXPIRATION_SECONDS {
-            println!("Client signature has expired");
-            return false;
-        }
+        // let server_timestamp = get_timestamp();
+        // println!("server_timestamp: {}", server_timestamp);
+        // println!("client_timestamp: {}", client_timestamp);
+        // println!("signature time = {}", server_timestamp - client_timestamp);
+        // if server_timestamp - client_timestamp > SIGNATURE_EXPIRATION_SECONDS {
+        //     println!("Client signature has expired");
+        //     return false;
+        // }
 
         let capability_string = updated_capabilities
             .iter()
