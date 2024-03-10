@@ -1,42 +1,48 @@
-file ./test_data/test_1_client_1
-mean: 426.865
-median: 426.0
-file ./test_data/test_1_client_10
-mean: 157.3985
-median: 158.0
-file ./test_data/test_1_client_100
-mean: 245.87395
-median: 241.0
-file ./test_data/test_1_client_500
-mean: 253.38448
-median: 250.0
-file ./test_data/test_1_client_700
-mean: 251.36330714285714
-median: 246.0
-file ./test_data/test_2_client_1
-mean: 275.62
-median: 276.0
-file ./test_data/test_2_client_10
-mean: 220.414
-median: 74.0
-file ./test_data/test_2_client_100
-mean: 246.07875
-median: 241.0
-file ./test_data/test_2_client_500
-mean: 252.13314
-median: 252.0
-file ./test_data/test_2_client_700
-mean: 250.38639285714285
-median: 245.0
-file ./test_data/test_3_client_1
-mean: 434.69
-median: 435.0
-file ./test_data/test_3_client_10
-mean: 168.1365
-median: 168.0
-file ./test_data/test_3_client_100
-mean: 243.73565
-median: 240.0
-file ./test_data/test_3_client_500
-mean: 252.32534
-median: 250.0
+File Name: ./test_data/test_1_client_1
+Mean: 426.865
+Median: 426.0
+File Name: ./test_data/test_1_client_10
+Mean: 157.3985
+Median: 158.0
+File Name: ./test_data/test_1_client_100
+Mean: 245.87395
+Median: 241.0
+File Name: ./test_data/test_1_client_500
+Mean: 253.38448
+Median: 250.0
+File Name: ./test_data/test_1_client_700
+Mean: 251.36330714285714
+Median: 246.0
+File Name: ./test_data/test_2_client_1
+Mean: 275.62
+Median: 276.0
+File Name: ./test_data/test_2_client_10
+Mean: 220.414
+Median: 74.0
+File Name: ./test_data/test_2_client_100
+Mean: 246.07875
+Median: 241.0
+File Name: ./test_data/test_2_client_500
+Mean: 252.13314
+Median: 252.0
+File Name: ./test_data/test_2_client_700
+Mean: 250.38639285714285
+Median: 245.0
+File Name: ./test_data/test_3_client_1
+Mean: 434.69
+Median: 435.0
+File Name: ./test_data/test_3_client_10
+Mean: 168.1365
+Median: 168.0
+File Name: ./test_data/test_3_client_100
+Mean: 243.73565
+Median: 240.0
+File Name: ./test_data/test_3_client_500
+Mean: 252.32534
+Median: 250.0
+File Name: ./test_data/test_3_client_700
+Mean: 252.34967142857144
+Median: 251.0
+File Name: ./test_data/test_with_stuff_open
+Mean: 312.69428571428574
+Median: 287.0
