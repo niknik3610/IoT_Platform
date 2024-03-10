@@ -1,4 +1,4 @@
-use std::{future::IntoFuture, net::SocketAddr, sync::Arc};
+use std::{future::IntoFuture, net::SocketAddr, sync::{Arc, Mutex, RwLock}};
 
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
@@ -16,7 +16,7 @@ use futures_util::FutureExt;
 use tonic::transport::Server;
 use web_json_translation::json_registration;
 
-use crate::web_json_translation::{json_device_control, json_get_devices};
+use crate::{device::Device, polling::DeviceEvent, web_json_translation::{json_device_control, json_get_devices}};
 
 pub mod certificate_signing;
 pub mod device;
@@ -29,7 +29,6 @@ mod web_json_translation;
 
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub type RPCFunctionResult<T> = Result<tonic::Response<T>, tonic::Status>;
-pub type ConnectedDevicesType = FxHashMap<String, device::Device>;
 
 const RSA_KEY_SIZE: usize = 2048;
 
@@ -60,7 +59,7 @@ async fn main() -> anyhow::Result<()> {
     let port = DEFAULT_PORT;
     let grpc_address = SocketAddr::new(local_ip, port);
 
-    let connected_devices: ThreadSafeMutable<ConnectedDevicesType> = Arc::default();
+    let connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>> = Arc::default();
     let connected_device_uuids: ThreadSafeMutable<Vec<String>> = Arc::default();
 
     let device_count = Arc::new(tokio::sync::Mutex::new(0));
@@ -85,7 +84,7 @@ async fn main() -> anyhow::Result<()> {
         frontend_cache_valid.clone(),
     );
 
-    let events = ThreadSafeMutable::default();
+    let events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>> = Arc::default();
     let polling_service = polling::PollingHandler::new(
         connected_devices.clone(),
         events.clone(),

@@ -1,12 +1,13 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, RwLock};
 
 use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
 use crate::certificate_signing::CertificateSigningService;
+use crate::device::Device;
 use crate::types::types::{self, DeviceCapabilityStatus};
-use crate::{certificate_signing, ConnectedDevicesType, RPCFunctionResult, ThreadSafeMutable};
+use crate::{certificate_signing, RPCFunctionResult, ThreadSafeMutable};
 use fxhash::FxHashMap;
 use tonic::async_trait;
 
@@ -50,18 +51,18 @@ impl DeviceEvent {
 }
 
 pub struct PollingHandler {
-    connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
-    events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
+    connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
+    events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>>,
     frontend_cache_valid: ThreadSafeMutable<bool>,
     certificate_signing_service: Arc<CertificateSigningService>,
 }
 impl PollingHandler {
     pub fn new(
-        connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
-        events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
+        connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
+        events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
         certificate_signing_service: Arc<CertificateSigningService>,
-    ) -> Self {
+        ) -> Self {
         PollingHandler {
             connected_devices,
             events,
@@ -76,13 +77,15 @@ impl RequestUpdateService for PollingHandler {
     async fn poll_for_update(
         &self,
         request: tonic::Request<PollRequest>,
-    ) -> RPCFunctionResult<PollResponse> {
+        ) -> RPCFunctionResult<PollResponse> {
         let request = request.into_inner();
         let device_uuid = request.uuid;
         let device_certificate;
+        let mut invalidate_frontend_cache = false;
+        
         {
-            let mut connected_devices = self.connected_devices.lock().await;
-            let device = connected_devices.get_mut(&device_uuid);
+            let connected_devices = self.connected_devices.read().unwrap();
+            let device = connected_devices.get(&device_uuid);
             let device = match device {
                 Some(r) => r,
                 None => {
@@ -94,6 +97,18 @@ impl RequestUpdateService for PollingHandler {
                     }));
                 }
             };
+            let mut device = match device.lock() {
+                Ok(r) => r,
+                Err(e) => {
+                    return Ok(tonic::Response::new(PollResponse {
+                        has_update: PollingOption::Unknown as i32,
+                        updates: Vec::new(),
+                        signature: vec![],
+                        timestamp: certificate_signing::get_timestamp(),
+                    }));
+                }
+            };
+
             let signature_valid = CertificateSigningService::verify_signature_update_request(
                 &device.certificate,
                 &request.updated_capabilities,
@@ -111,27 +126,31 @@ impl RequestUpdateService for PollingHandler {
                     timestamp: certificate_signing::get_timestamp(),
                 }));
             }
+            device_certificate = device.certificate.clone();
             if !request.updated_capabilities.is_empty() {
                 let (active_capabilities, inactive_capabilities): (
                     Vec<DeviceCapabilityStatus>,
                     Vec<DeviceCapabilityStatus>,
-                ) = request
+                    ) = request
                     .updated_capabilities
                     .into_iter()
                     .partition(|capability| capability.available);
                 device.replace_capabilities(active_capabilities, inactive_capabilities);
-                let mut frontend_cache_valid = self.frontend_cache_valid.lock().await;
-                *frontend_cache_valid = false;
+                invalidate_frontend_cache = true;
             }
-
-            device_certificate = device.certificate.clone();
         }
-        {
-            let mut updates = self.events.lock().await;
-            let updates = updates.get_mut(&device_uuid);
 
-            let updates = match updates {
-                Some(r) => r,
+        if invalidate_frontend_cache {
+            let mut frontend_cache_valid = self.frontend_cache_valid.lock().await;
+            *frontend_cache_valid = false;
+        }
+
+        {
+            let events = self.events.read().unwrap();
+            let updates = events.get(&device_uuid);
+
+            let mut updates = match updates {
+                Some(r) => r.lock().unwrap(),
                 None => {
                     let signature = fields_to_signature_data(&vec![], &device_certificate);
                     let (signature, timestamp) = self.certificate_signing_service.sign_data(signature);

@@ -12,6 +12,7 @@ pub struct ClientConfig {
     pub capability: Table,
 }
 
+#[derive(Clone)]
 pub struct ParsedConfig {
     pub server_ip: Option<String>,
     pub device_name: String,

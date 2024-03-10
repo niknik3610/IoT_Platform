@@ -1,3 +1,5 @@
+use std::sync::{Mutex, Arc, RwLock};
+
 use crate::{polling::DeviceEvent, ThreadSafeMutable};
 use fxhash::FxHashMap;
 use tonic::async_trait;
@@ -12,10 +14,10 @@ pub mod device_control {
 
 #[derive(Clone)]
 pub struct FrontendDeviceControlHandler {
-    events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>,
+    events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>>,
 }
 impl FrontendDeviceControlHandler {
-    pub fn new(events: ThreadSafeMutable<FxHashMap<String, Vec<DeviceEvent>>>) -> Self {
+    pub fn new(events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>>) -> Self {
         FrontendDeviceControlHandler { events }
     }
 }
@@ -32,15 +34,25 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         let capability_to_be_triggered = request.capability;
 
         let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), None);
-        {
-            let mut events = self.events.lock().await;
-            let mut device_events = events.get_mut(&uuid);
+        let insert = {
+            let events = self.events.read().unwrap();
+            let device_events = events.get(&uuid);
             if let None = device_events {
-                events.insert(uuid.clone(), Vec::new());
-                device_events = events.get_mut(&uuid);
+                true
             }
-            device_events.unwrap().push(new_event);
+            else {
+                false
+            }
+        };
+
+        if insert {
+            let mut events = self.events.write().unwrap();
+            events.insert(uuid.clone(), Arc::default());
         }
+
+        let events = self.events.read().unwrap();
+        let device_events = events.get(&uuid);
+        device_events.unwrap().lock().unwrap().push(new_event);
 
         return Ok(tonic::Response::new(
             frontend_device_control::DeviceControlResponse { result: 1 },

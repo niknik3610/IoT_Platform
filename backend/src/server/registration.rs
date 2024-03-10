@@ -3,18 +3,20 @@ use rsa::pss::VerifyingKey;
 use rsa::sha2::Sha256;
 use rsa::RsaPublicKey;
 
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 use tonic::async_trait;
 use uuid::Uuid;
 
 use crate::certificate_signing::CertificateSigningService;
 use crate::{
-    certificate_signing, device, frontend_clients, ConnectedDevicesType, RPCFunctionResult,
+    device, frontend_clients, RPCFunctionResult,
     ThreadSafeMutable,
 };
 
 use self::frontend_registration_service::frontend_registration_service_server::FrontendRegistrationService;
 use self::registration_service::registration_service_server::RegistrationService;
+use crate::Device;
+use std::sync::Mutex;
 
 use crate::types::types;
 pub mod registration_service {
@@ -26,7 +28,7 @@ fn generate_new_id() -> Uuid {
 }
 
 pub struct ClientRegistrationHandler {
-    connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+    connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
     connected_device_uuids: ThreadSafeMutable<Vec<String>>,
     signing_service: Arc<CertificateSigningService>,
     _public_key: rsa::RsaPublicKey,
@@ -36,7 +38,7 @@ pub struct ClientRegistrationHandler {
 }
 impl ClientRegistrationHandler {
     pub fn new(
-        connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+        connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
         device_count: ThreadSafeMutable<u128>,
         signing_service: Arc<CertificateSigningService>,
         public_key: RsaPublicKey,
@@ -103,9 +105,11 @@ impl RegistrationService for ClientRegistrationHandler {
                 .push(device.stringified_uuid.clone());
         }
 
+        let uuid = device.stringified_uuid.clone();
+        let device = Arc::new(Mutex::new(device));
         {
-            let mut connected_devices = self.connected_devices.lock().await;
-            connected_devices.insert(device.stringified_uuid.clone(), device);
+            let mut connected_devices = self.connected_devices.write().unwrap();
+            connected_devices.insert(uuid, device);
         }
         {
             let mut frontend_cache_valid = self.frontend_cache_valid.lock().await;
@@ -123,7 +127,7 @@ pub mod frontend_registration_service {
 pub type ConnectedFrontendsType = FxHashMap<String, frontend_clients::FrontendDevice>;
 pub struct FrontendRegistrationHandler {
     connected_frontends: ThreadSafeMutable<ConnectedFrontendsType>,
-    connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+    connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
     connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
     cached_devices_for_frontends:
         ThreadSafeMutable<Vec<self::frontend_registration_service::Device>>,
@@ -131,7 +135,7 @@ pub struct FrontendRegistrationHandler {
 }
 impl FrontendRegistrationHandler {
     pub fn new(
-        connected_devices: ThreadSafeMutable<ConnectedDevicesType>,
+        connected_devices: Arc<RwLock<FxHashMap<String, Arc<Mutex<Device>>>>>,
         connected_devices_uuids: ThreadSafeMutable<Vec<String>>,
         cache_valid: ThreadSafeMutable<bool>,
     ) -> Self {
@@ -196,10 +200,12 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
         .await;
 
         async {
-            let connected_devices = self.connected_devices.lock().await;
             connected_devices_uuids_clone.iter().for_each(|device_id| {
+                let connected_devices = self.connected_devices.read().unwrap();
                 let device = connected_devices.get(device_id);
+                
                 if let Some(device) = device {
+                    let device = device.lock().unwrap();
                     let new_device = Device {
                         device_name: device.name.clone(),
                         device_uuid: device.stringified_uuid.clone(),
