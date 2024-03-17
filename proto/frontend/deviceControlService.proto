@@ -10,6 +10,7 @@ message DeviceControlRequest{
     string device_uuid = 1;
     string capability = 2;
     uint64 timestamp = 3;
+    optional float value = 4;
 }
 
 message DeviceControlResponse{

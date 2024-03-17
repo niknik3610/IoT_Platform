@@ -4,4 +4,11 @@ package frontend.types;
 message DeviceCapabilityStatus {
     bool available = 1;
     string capability = 2;
+    DeviceCapabilityType type = 3;
+    optional float value = 4;
+}
+
+enum DeviceCapabilityType {
+    BUTTON = 0;
+    SLIDER = 1;
 }

@@ -31,6 +31,5 @@ enum PollingOption {
 
 message Update {
     string capability = 1;
-    bool hasValue = 2;
-    int32 value = 3;
+    optional float value = 2;
 }

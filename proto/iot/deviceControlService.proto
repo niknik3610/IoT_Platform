@@ -8,6 +8,7 @@ service DeviceControlService{
 
 message DeviceControlRequest{
     string capability = 2;
+    optional float value = 3;
 }
 
 message DeviceControlResponse{
