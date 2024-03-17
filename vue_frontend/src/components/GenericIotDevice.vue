@@ -11,30 +11,29 @@ import { frontend } from "@/generated/generated";
 import { onMounted, ref, watch } from "vue";
 
 const props = defineProps({
-    deviceName: {
+    deviceInfo: {
         required: true,
-        type: String,
-    },
-    capabilities: {
-        required: true,
-        type: Array<frontend.types.DeviceCapabilityStatus>,
-    },
-    deviceUuid: {
-        required: true,
-        type: String,
+        type: frontend.registration.Device,
     },
 });
 
 const activeCapabilities = ref(new ActiveCapabilities());
+const deviceName = ref<String>("");
+const capabilities = ref<Array<frontend.types.DeviceCapabilityStatus>>([])
+const deviceUuid = ref<String>("");
 
 onMounted(async () => {
+    deviceName.value =  props.deviceInfo.device_name
+    capabilities.value =  props.deviceInfo.capabilities
+    deviceUuid.value =  props.deviceInfo.device_uuid
+
     activeCapabilities.value = await calculateActiveCapabilities(
-        props.capabilities,
+        capabilities.value,
     );
 
-    watch(props.capabilities, async (newCapabilities) => {
-        activeCapabilities.value =
-            await calculateActiveCapabilities(newCapabilities);
+    watch(() => props.deviceInfo, async (newDeviceInfo) => {
+        const newCapabilities = newDeviceInfo.capabilities;
+        activeCapabilities.value = await calculateActiveCapabilities(newCapabilities);
     });
 });
 
@@ -70,9 +69,10 @@ async function calculateActiveCapabilities(
 }
 
 async function activateCapability(capability: DeviceCapabilityStatus) {
-    let result = await controlDevice(props.deviceUuid, capability.capability, capability.value);
+    console.log(deviceUuid.value)
+    let result = await controlDevice(deviceUuid.value, capability.capability, capability.value);
     if (result.isOk()) {
-        console.log(`${capability} activated succesfully`);
+        console.log(`${capability.capability} activated succesfully`);
     } else if (result.isErr()) {
         console.error(
             `${props.deviceName} had error: ${result.error} while trying to activate capability ${capability}`,

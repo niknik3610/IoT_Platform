@@ -1,14 +1,14 @@
-use std::sync::{Arc};
+use std::sync::Arc;
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
 use rsa::{
-    pss::{BlindedSigningKey},
+    pss::BlindedSigningKey,
     sha2::Sha256,
 };
 
 use crate::{
-    client_config::ParsedConfig, client_polling::{self, polling::Update}, client_registration,
+    client_config::ParsedConfig, client_polling::{self}, client_registration,
     client_types::types::DeviceCapabilityStatus,
 };
 
@@ -16,7 +16,7 @@ use crate::{
 const RSA_KEY_SIZE: usize = 2048;
 const POLLING_INTERVAL: u64 = 500;
 
-pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
+pub type ThreadSafeMutable<T> = Arc<std::sync::Mutex<T>>;
 
 pub struct NoshpClient<S: UserDefinedState> {
     callbacks: FxHashMap<String, Box<Callback<S>>>,
@@ -32,9 +32,10 @@ where
     S: UserDefinedState + 'static,
 {
     pub fn new() -> Self {
+        let has_update = ThreadSafeMutable::new(std::sync::Mutex::new(false));
         Self {
             callbacks: FxHashMap::default(),
-            client_state: ClientState::new(),
+            client_state: ClientState::new(has_update),
             server_ip: None,
         }
     }
@@ -69,7 +70,7 @@ where
         let capabilities = config.capabilities;
 
         let capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>> =
-            Arc::new(tokio::sync::Mutex::new(capabilities));
+            Arc::new(std::sync::Mutex::new(capabilities));
 
         self.client_state.capabilities = capabilities.clone();
         let (private_key, signing_key) = {
@@ -91,7 +92,6 @@ where
             let certificate = client_connection_details.security_certificate.clone();
             let uuid = client_connection_details.uuid.clone();
 
-            let has_update = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
 
             let mut interval =
                 tokio::time::interval(std::time::Duration::from_millis(POLLING_INTERVAL));
@@ -102,7 +102,7 @@ where
             let mut polling_service = client_polling::PollingService::new(
                 update_client,
                 capabilities.clone(),
-                has_update.clone(),
+                self.client_state.has_update.clone(),
                 client_connection_details,
                 signing_key,
             );
@@ -136,15 +136,43 @@ where
 pub trait UserDefinedState: Default {}
 //todo: add capabilities to the capabilities struct here
 pub struct ClientState<S: UserDefinedState> {
-    capabilities: ThreadSafeMutable<Vec<DeviceCapabilityStatus>>,
-    user_state: S,
+    pub user_state: S,
+    capabilities: Arc<std::sync::Mutex<Vec<DeviceCapabilityStatus>>>,
+    has_update: Arc<std::sync::Mutex<bool>>
 }
 impl<S: UserDefinedState> ClientState<S> {
-    fn new() -> Self {
+    fn new(has_update: Arc<std::sync::Mutex<bool>>) -> Self {
         return Self {
             capabilities: Arc::default(),
             user_state: S::default(),
+            has_update
         };
+    }
+    pub fn update_capability_availabillity(&self, capability_name: &str, available: bool) -> anyhow::Result<()> {
+        {
+            let has_update = self.has_update.lock();
+            let mut has_update = match has_update {
+                Ok(v) => v,
+                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e))
+            };
+
+            *has_update = true;
+        }
+        {
+            let capabilities = self.capabilities.lock();
+            let mut capabilities = match capabilities {
+                Ok(v) => v,
+                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e))
+            };
+            for capability in capabilities.iter_mut() {
+                println!("capability name: {}", capability.capability);
+                if capability.capability == capability_name {
+                    capability.available = available;
+                    return Ok(());
+                }
+            }
+        }
+        Err(anyhow!("Unable to find specified capability with name: {}", capability_name))
     }
 }
 

@@ -30,7 +30,7 @@ mod web_json_translation;
 pub type ThreadSafeMutable<T> = Arc<tokio::sync::Mutex<T>>;
 pub type RPCFunctionResult<T> = Result<tonic::Response<T>, tonic::Status>;
 
-pub const PERF_TEST_LOGGING: bool = true;
+pub const PERF_TEST_LOGGING: bool = false;
 const RSA_KEY_SIZE: usize = 2048;
 
 #[derive(clap::Parser, Debug)]

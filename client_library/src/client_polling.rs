@@ -17,7 +17,7 @@ pub mod polling {
 pub struct PollingService {
     client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
     capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
-    updated: ThreadSafeMutable<bool>,
+    has_update: ThreadSafeMutable<bool>,
     connection_details: ServerConnection,
     signing_key: BlindedSigningKey<Sha256>,
 }
@@ -25,27 +25,27 @@ impl PollingService {
     pub fn new(
         client: polling::request_update_service_client::RequestUpdateServiceClient<Channel>,
         capabilities: ThreadSafeMutable<Vec<types::DeviceCapabilityStatus>>,
-        updated: ThreadSafeMutable<bool>,
+        has_update: ThreadSafeMutable<bool>,
         connection_details: ServerConnection,
         signing_key: BlindedSigningKey<Sha256>,
     ) -> Self {
         Self {
             client,
             capabilities,
-            updated,
+            has_update,
             connection_details,
             signing_key,
         }
     }
     pub async fn get_updates(&mut self, certificate: String, uuid: String) -> Option<Vec<Update>> {
         let updated_capabilities = {
-            let mut update = self.updated.lock().await;
+            let mut update = self.has_update.lock().unwrap();
 
             if !*update {
                 Vec::new()
             } else {
                 *update = false;
-                self.capabilities.lock().await.clone()
+                self.capabilities.lock().unwrap().clone()
             }
         };
 

@@ -8,7 +8,7 @@ import { frontend } from "@/generated/generated";
 const deviceIdStore = useDeviceIdStore();
 const connectedDevices = ref<frontend.registration.Device[]>();
 
-const REFRESH_TIMING_MS = 200;
+const REFRESH_TIMING_MS = 500;
 
 onMounted(async () => {
     if (!deviceIdStore.device_id_valid) {
@@ -72,18 +72,11 @@ async function proccessConnectedDevices(): Promise<
     </div>
     <div class="connected-devices">
         <h1>Your Connected Devices:</h1>
-        <!-- <div v-for="device in connectedDevices"> -->
-        <!--     <p>device name: {{device.name}}</p> -->
-        <!--     <p>device capabilities:</p> -->
-        <!--     <p v-for="capability in device.capabilities">{{capability}}</p> -->
-        <!-- </div> -->
         <div class="connected-devices-container">
             <GenericIotDevice
                 v-for="device in connectedDevices"
                 v-bind:key="device.device_name"
-                :deviceName="device.device_name"
-                :capabilities="device.capabilities"
-                :deviceUuid="device.device_uuid"
+                :deviceInfo="device"
             />
         </div>
     </div>
