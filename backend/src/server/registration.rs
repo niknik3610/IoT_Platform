@@ -8,10 +8,7 @@ use tonic::async_trait;
 use uuid::Uuid;
 
 use crate::certificate_signing::CertificateSigningService;
-use crate::{
-    device, frontend_clients, RPCFunctionResult,
-    ThreadSafeMutable,
-};
+use crate::{device, frontend_clients, RPCFunctionResult, ThreadSafeMutable};
 
 use self::frontend_registration_service::frontend_registration_service_server::FrontendRegistrationService;
 use self::registration_service::registration_service_server::RegistrationService;
@@ -68,9 +65,7 @@ impl RegistrationService for ClientRegistrationHandler {
 
         let csr = client_id.to_string() + &request.public_key;
 
-        let new_certificate = {
-            self.signing_service.gen_certificate(&csr)
-        };
+        let new_certificate = { self.signing_service.gen_certificate(&csr) };
 
         let capabilites = request.capabilities;
 
@@ -203,7 +198,7 @@ impl FrontendRegistrationService for FrontendRegistrationHandler {
             connected_devices_uuids_clone.iter().for_each(|device_id| {
                 let connected_devices = self.connected_devices.read().unwrap();
                 let device = connected_devices.get(device_id);
-                
+
                 if let Some(device) = device {
                     let device = device.lock().unwrap();
                     let new_device = Device {

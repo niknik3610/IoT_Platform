@@ -2,13 +2,12 @@ use std::sync::Arc;
 
 use anyhow::anyhow;
 use fxhash::FxHashMap;
-use rsa::{
-    pss::BlindedSigningKey,
-    sha2::Sha256,
-};
+use rsa::{pss::BlindedSigningKey, sha2::Sha256};
 
 use crate::{
-    client_config::ParsedConfig, client_polling::{self}, client_registration,
+    client_config::ParsedConfig,
+    client_polling::{self},
+    client_registration,
     client_types::types::DeviceCapabilityStatus,
 };
 
@@ -92,7 +91,6 @@ where
             let certificate = client_connection_details.security_certificate.clone();
             let uuid = client_connection_details.uuid.clone();
 
-
             let mut interval =
                 tokio::time::interval(std::time::Duration::from_millis(POLLING_INTERVAL));
 
@@ -138,22 +136,26 @@ pub trait UserDefinedState: Default {}
 pub struct ClientState<S: UserDefinedState> {
     pub user_state: S,
     capabilities: Arc<std::sync::Mutex<Vec<DeviceCapabilityStatus>>>,
-    has_update: Arc<std::sync::Mutex<bool>>
+    has_update: Arc<std::sync::Mutex<bool>>,
 }
 impl<S: UserDefinedState> ClientState<S> {
     fn new(has_update: Arc<std::sync::Mutex<bool>>) -> Self {
         return Self {
             capabilities: Arc::default(),
             user_state: S::default(),
-            has_update
+            has_update,
         };
     }
-    pub fn update_capability_availabillity(&self, capability_name: &str, available: bool) -> anyhow::Result<()> {
+    pub fn update_capability_availabillity(
+        &self,
+        capability_name: &str,
+        available: bool,
+    ) -> anyhow::Result<()> {
         {
             let has_update = self.has_update.lock();
             let mut has_update = match has_update {
                 Ok(v) => v,
-                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e))
+                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e)),
             };
 
             *has_update = true;
@@ -162,7 +164,7 @@ impl<S: UserDefinedState> ClientState<S> {
             let capabilities = self.capabilities.lock();
             let mut capabilities = match capabilities {
                 Ok(v) => v,
-                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e))
+                Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e)),
             };
             for capability in capabilities.iter_mut() {
                 println!("capability name: {}", capability.capability);
@@ -172,19 +174,20 @@ impl<S: UserDefinedState> ClientState<S> {
                 }
             }
         }
-        Err(anyhow!("Unable to find specified capability with name: {}", capability_name))
+        Err(anyhow!(
+            "Unable to find specified capability with name: {}",
+            capability_name
+        ))
     }
 }
 
 pub type Callback<S> = fn(&mut ClientState<S>, Request);
 
 pub struct Request {
-    pub value: Option<f32>
+    pub value: Option<f32>,
 }
 impl Request {
     pub fn new(value: Option<f32>) -> Self {
-        Self {
-            value 
-        }
+        Self { value }
     }
 }

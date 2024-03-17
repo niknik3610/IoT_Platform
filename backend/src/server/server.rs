@@ -1,4 +1,8 @@
-use std::{future::IntoFuture, net::SocketAddr, sync::{Arc, Mutex, RwLock}};
+use std::{
+    future::IntoFuture,
+    net::SocketAddr,
+    sync::{Arc, Mutex, RwLock},
+};
 
 use actix_web::{web, App, HttpServer};
 use clap::Parser;
@@ -16,7 +20,11 @@ use futures_util::FutureExt;
 use tonic::transport::Server;
 use web_json_translation::json_registration;
 
-use crate::{device::Device, polling::DeviceEvent, web_json_translation::{json_device_control, json_get_devices}};
+use crate::{
+    device::Device,
+    polling::DeviceEvent,
+    web_json_translation::{json_device_control, json_get_devices},
+};
 
 pub mod certificate_signing;
 pub mod device;
@@ -74,7 +82,9 @@ async fn main() -> anyhow::Result<()> {
     let _signing_key = SigningKey::<rsa::sha2::Sha256>::new(private_key.clone());
 
     let frontend_cache_valid = ThreadSafeMutable::new(tokio::sync::Mutex::new(false));
-    let signing_service = Arc::new(certificate_signing::CertificateSigningService::new(private_key.clone()));
+    let signing_service = Arc::new(certificate_signing::CertificateSigningService::new(
+        private_key.clone(),
+    ));
 
     let registration_service = registration::ClientRegistrationHandler::new(
         connected_devices.clone(),

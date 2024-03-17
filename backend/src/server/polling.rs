@@ -4,7 +4,7 @@ use self::polling_service::PollingOption;
 use self::polling_service::{
     request_update_service_server::RequestUpdateService, PollRequest, PollResponse,
 };
-use crate::certificate_signing::{get_timestamp, CertificateSigningService};
+use crate::certificate_signing::CertificateSigningService;
 use crate::device::Device;
 use crate::types::types::{self, DeviceCapabilityStatus};
 use crate::{certificate_signing, RPCFunctionResult, ThreadSafeMutable, PERF_TEST_LOGGING};
@@ -23,7 +23,12 @@ pub struct DeviceEvent {
     timestamp: u64,
 }
 impl DeviceEvent {
-    pub fn new(capability: String, requester_uuid: String, value: Option<f32>, timestamp: u64) -> Self {
+    pub fn new(
+        capability: String,
+        requester_uuid: String,
+        value: Option<f32>,
+        timestamp: u64,
+    ) -> Self {
         DeviceEvent {
             capability,
             _requester_uuid: requester_uuid,
@@ -51,7 +56,7 @@ impl PollingHandler {
         events: Arc<RwLock<FxHashMap<String, Arc<Mutex<Vec<DeviceEvent>>>>>>,
         frontend_cache_valid: ThreadSafeMutable<bool>,
         certificate_signing_service: Arc<CertificateSigningService>,
-        ) -> Self {
+    ) -> Self {
         PollingHandler {
             connected_devices,
             events,
@@ -66,12 +71,12 @@ impl RequestUpdateService for PollingHandler {
     async fn poll_for_update(
         &self,
         request: tonic::Request<PollRequest>,
-        ) -> RPCFunctionResult<PollResponse> {
+    ) -> RPCFunctionResult<PollResponse> {
         let request = request.into_inner();
         let device_uuid = request.uuid;
         let device_certificate;
         let mut invalidate_frontend_cache = false;
-        
+
         {
             let connected_devices = self.connected_devices.read().unwrap();
             let device = connected_devices.get(&device_uuid);
@@ -88,7 +93,7 @@ impl RequestUpdateService for PollingHandler {
             };
             let mut device = match device.lock() {
                 Ok(r) => r,
-                Err(e) => {
+                Err(_e) => {
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::Unknown as i32,
                         updates: Vec::new(),
@@ -103,7 +108,7 @@ impl RequestUpdateService for PollingHandler {
                 &request.updated_capabilities,
                 request.timestamp,
                 request.signature,
-                &device.device_verification_key
+                &device.device_verification_key,
             );
 
             if !signature_valid {
@@ -120,7 +125,7 @@ impl RequestUpdateService for PollingHandler {
                 let (active_capabilities, inactive_capabilities): (
                     Vec<DeviceCapabilityStatus>,
                     Vec<DeviceCapabilityStatus>,
-                    ) = request
+                ) = request
                     .updated_capabilities
                     .into_iter()
                     .partition(|capability| capability.available);
@@ -142,7 +147,8 @@ impl RequestUpdateService for PollingHandler {
                 Some(r) => r.lock().unwrap(),
                 None => {
                     let signature = fields_to_signature_data(&vec![], &device_certificate);
-                    let (signature, timestamp) = self.certificate_signing_service.sign_data(signature);
+                    let (signature, timestamp) =
+                        self.certificate_signing_service.sign_data(signature);
                     return Ok(tonic::Response::new(PollResponse {
                         has_update: PollingOption::None as i32,
                         updates: Vec::new(),
@@ -182,9 +188,8 @@ impl RequestUpdateService for PollingHandler {
                     update.to_update()
                 })
                 .collect();
-                updates.clear();
+            updates.clear();
 
-            
             return Ok(tonic::Response::new(PollResponse {
                 has_update: PollingOption::Some as i32,
                 updates: updates_clone,

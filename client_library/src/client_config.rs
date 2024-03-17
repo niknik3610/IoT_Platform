@@ -1,6 +1,5 @@
 use std::{fs, path::Path};
 
-use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use toml::Table;
 

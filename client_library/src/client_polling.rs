@@ -142,7 +142,8 @@ fn verify_signature(
     certificate: &String,
 ) -> bool {
     let client_time_stamp = get_timestamp();
-    if (client_time_stamp as i128 - response.timestamp as i128).abs() > SIGNATURE_EXPIRATION_SECONDS {
+    if (client_time_stamp as i128 - response.timestamp as i128).abs() > SIGNATURE_EXPIRATION_SECONDS
+    {
         println!("Server sent an expired signature");
         return false;
     }

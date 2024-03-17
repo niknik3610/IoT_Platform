@@ -1,4 +1,4 @@
-use std::sync::{Mutex, Arc, RwLock};
+use std::sync::{Arc, Mutex, RwLock};
 
 use crate::polling::DeviceEvent;
 use fxhash::FxHashMap;
@@ -34,14 +34,18 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         let capability_to_be_triggered = request.capability;
         let val = request.value;
 
-        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), val, request.timestamp);
+        let new_event = DeviceEvent::new(
+            capability_to_be_triggered,
+            uuid.clone(),
+            val,
+            request.timestamp,
+        );
         let insert = {
             let events = self.events.read().unwrap();
             let device_events = events.get(&uuid);
             if let None = device_events {
                 true
-            }
-            else {
+            } else {
                 false
             }
         };
