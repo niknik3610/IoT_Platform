@@ -32,8 +32,9 @@ impl frontend_device_control::frontend_device_control_service_server::FrontendDe
         let request = request.into_inner();
         let uuid = request.device_uuid;
         let capability_to_be_triggered = request.capability;
+        let val = request.value;
 
-        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), None, request.timestamp);
+        let new_event = DeviceEvent::new(capability_to_be_triggered, uuid.clone(), val, request.timestamp);
         let insert = {
             let events = self.events.read().unwrap();
             let device_events = events.get(&uuid);

@@ -20,7 +20,7 @@ pub async fn json_device_control(
         match serde_json::from_str(&req_body) {
             Ok(r) => r,
             Err(e) => {
-                eprintln!("{e}");
+                eprintln!("The JSON proxy received a malformed request with error: \n{e}");
                 return HttpResponse::BadRequest().body("malformed request");
             }
         };

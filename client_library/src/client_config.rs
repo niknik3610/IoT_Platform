@@ -1,9 +1,10 @@
 use std::{fs, path::Path};
 
+use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
 use toml::Table;
 
-use crate::client_types::types::DeviceCapabilityStatus;
+use crate::client_types::types::{DeviceCapabilityStatus, DeviceCapabilityType};
 
 #[derive(Serialize, Deserialize)]
 pub struct ClientConfig {
@@ -44,13 +45,38 @@ impl ClientConfig {
                 let available = match available {
                     toml::Value::Boolean(v) => v,
                     _ => {
-                        println!("capability {name} in config file has invalid fields, expected a boolean for available field");
+                        eprintln!("Capability {name} in config file has invalid fields, expected a boolean for available field");
                         false
                     }
                 };
-                return DeviceCapabilityStatus {
+
+                let capa_type = match value.get("type") {
+                    Some(v) => v.clone(),
+                    None => {
+                        eprintln!("Capability {name} in config file is missing a type, defaulting to button");
+                        toml::Value::Boolean(false)
+                    }
+                };
+
+                let capa_type = match capa_type {
+                    toml::Value::String(v) => v,
+                    _ => String::from("button")
+                };
+
+                let capa_type = match &*capa_type {
+                    "button" => DeviceCapabilityType::Button,
+                    "slider" => DeviceCapabilityType::Slider,
+                    _ => {
+                        eprintln!("Unrecognized capability type for capability {name}, defaulting to button");
+                        DeviceCapabilityType::Button
+                    }
+                };
+
+                DeviceCapabilityStatus {
                     capability: name,
-                    available
+                    available,
+                    r#type: capa_type as i32,
+                    value: None
                 }
             }).collect();
 

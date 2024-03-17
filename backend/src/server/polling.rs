@@ -19,11 +19,11 @@ pub mod polling_service {
 pub struct DeviceEvent {
     capability: String,
     _requester_uuid: String,
-    value: Option<i32>,
+    value: Option<f32>,
     timestamp: u64,
 }
 impl DeviceEvent {
-    pub fn new(capability: String, requester_uuid: String, value: Option<i32>, timestamp: u64) -> Self {
+    pub fn new(capability: String, requester_uuid: String, value: Option<f32>, timestamp: u64) -> Self {
         DeviceEvent {
             capability,
             _requester_uuid: requester_uuid,
@@ -32,22 +32,9 @@ impl DeviceEvent {
         }
     }
     pub fn to_update(&self) -> polling_service::Update {
-        let value;
-        let has_value = match self.value {
-            Some(v) => {
-                value = v;
-                true
-            }
-            None => {
-                value = 0;
-                false
-            }
-        };
-
         polling_service::Update {
             capability: self.capability.clone(),
-            has_value,
-            value,
+            value: self.value,
         }
     }
 }

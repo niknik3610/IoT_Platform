@@ -1,3 +1,10 @@
+<script lang="ts">
+    class ActiveCapabilities {
+        buttons: frontend.types.DeviceCapabilityStatus[] = []
+        sliders: frontend.types.DeviceCapabilityStatus[] = []
+    }
+</script>
+
 <script setup lang="ts">
 import { controlDevice } from "@/backend_calls/deviceControl";
 import { frontend } from "@/generated/generated";
@@ -18,7 +25,7 @@ const props = defineProps({
     },
 });
 
-const activeCapabilities = ref<frontend.types.DeviceCapabilityStatus[]>([]);
+const activeCapabilities = ref(new ActiveCapabilities());
 
 onMounted(async () => {
     activeCapabilities.value = await calculateActiveCapabilities(
@@ -34,17 +41,36 @@ onMounted(async () => {
 async function calculateActiveCapabilities(
     capabilities: frontend.types.DeviceCapabilityStatus[],
 ) {
-    let activeCapilities = capabilities.filter((capability) => {
+    let activeCapability = capabilities.filter((capability) => {
         if (capability.available) {
             return capability;
         }
     });
+    
+    let toReturn = new ActiveCapabilities(); 
+    
+    for (const capability of activeCapability) {
+        switch (capability.type)  {
+            case frontend.types.DeviceCapabilityType.BUTTON:
+                toReturn.buttons.push(capability);
+                break;
+            case frontend.types.DeviceCapabilityType.SLIDER:
+                toReturn.sliders.push(capability);
+                if (capability.value === null) {
+                    capability.value = 50;
+                }
 
-    return activeCapilities;
+                break;
+            default:
+                console.error("Unknown Capability type " + capability.type)
+        }
+    }
+
+    return toReturn;
 }
 
-async function activateCapability(capability: string) {
-    let result = await controlDevice(props.deviceUuid, capability);
+async function activateCapability(capability: DeviceCapabilityStatus) {
+    let result = await controlDevice(props.deviceUuid, capability.capability, capability.value);
     if (result.isOk()) {
         console.log(`${capability} activated succesfully`);
     } else if (result.isErr()) {
@@ -59,14 +85,26 @@ async function activateCapability(capability: string) {
     <div class="device-container">
         <h2 class="title">{{ deviceName }}</h2>
         <div
-            v-for="capability in activeCapabilities"
+            v-for="capability in activeCapabilities.buttons"
             v-bind:key="capability.capability"
             class="button-container"
         >
-            <button class="capability-button" @click="activateCapability(capability.capability)">
+            <button class="capability-button" @click="activateCapability(capability)">
                 <p style="color: black">{{ capability.capability }}</p>
             </button>
         </div>
+        <div
+            v-for="capability in activeCapabilities.sliders"
+            v-bind:key="capability.capability"
+            class="slider-container"
+        >
+            <p style="color: black; text-align: center; padding-bottom: 3px;">{{ capability.capability }} Slider</p>
+            <div style="display: flex;">
+                <input type="range" min="1" max="100" value="50" class="slider" v-model="capability.value">
+                <button style="margin-left: 5px;" @click="activateCapability(capability)">Submit</button>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -92,13 +130,13 @@ async function activateCapability(capability: string) {
     display: flex;
     justify-content: center;
     padding: 5px;
+    padding-bottom: 15px;
 }
 button {
     align-self: center;
 }
 .capability-button {
     background-color: white;
-    border: none;
 
     padding: 9px 14px;
 
@@ -110,8 +148,23 @@ button {
     border: 4px solid #00BD7E;
     border-radius: 10px;
 }
-
 button:active { 
     transform: scale(0.95); 
+}
+.slider-container {
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: 15px;
+
+    border: 4px solid #00BD7E;
+    border-radius: 10px;
+    background-color: white;
+    padding: 5px;
 }
 </style>

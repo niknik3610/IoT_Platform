@@ -8,7 +8,7 @@ use rsa::{
 };
 
 use crate::{
-    client_config::ParsedConfig, client_polling, client_registration,
+    client_config::ParsedConfig, client_polling::{self, polling::Update}, client_registration,
     client_types::types::DeviceCapabilityStatus,
 };
 
@@ -122,7 +122,7 @@ where
                 for update in updates.into_iter() {
                     let callback = self.callbacks.get(&update.capability);
                     //todo: the requests aren't really implemented yet
-                    let empty_request = Request::new();
+                    let empty_request = Request::new(update.value);
                     match callback {
                         Some(callback) => callback(&mut self.client_state, empty_request),
                         None => println!("Received signal to {}", update.capability),
@@ -151,12 +151,12 @@ impl<S: UserDefinedState> ClientState<S> {
 pub type Callback<S> = fn(&mut ClientState<S>, Request);
 
 pub struct Request {
-    contents: Arc<String>,
+    pub value: Option<f32>
 }
 impl Request {
-    pub fn new() -> Self {
+    pub fn new(value: Option<f32>) -> Self {
         Self {
-            contents: Arc::default(),
+            value 
         }
     }
 }
