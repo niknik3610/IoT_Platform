@@ -167,7 +167,6 @@ impl<S: UserDefinedState> ClientState<S> {
                 Err(e) => return Err(anyhow!("Unable to get lock, error: {}", e)),
             };
             for capability in capabilities.iter_mut() {
-                println!("capability name: {}", capability.capability);
                 if capability.capability == capability_name {
                     capability.available = available;
                     return Ok(());

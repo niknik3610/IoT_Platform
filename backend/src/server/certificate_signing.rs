@@ -34,7 +34,7 @@ impl CertificateSigningService {
     pub fn verify_certificate(
         &self,
         certificate_from_device: String,
-        certificate_authentic: String,
+        certificate_authentic: String
     ) -> bool {
         let certificate_authentic = Signature::try_from(&*certificate_authentic.as_bytes());
         let certificate_authentic = match certificate_authentic {
@@ -45,10 +45,7 @@ impl CertificateSigningService {
             }
         };
 
-        match self
-            .verification_key
-            .verify(&certificate_from_device.as_bytes(), &certificate_authentic)
-        {
+        match self.verification_key.verify(&certificate_from_device.as_bytes(), &certificate_authentic) {
             Ok(_) => true,
             Err(_) => false,
         }
@@ -67,13 +64,11 @@ impl CertificateSigningService {
         updated_capabilities: &Vec<DeviceCapabilityStatus>,
         client_timestamp: u64,
         signature: Vec<u8>,
-        client_verification_key: &VerifyingKey<Sha256>,
-    ) -> bool {
+        client_verification_key: &VerifyingKey<Sha256>
+        ) -> bool {
         let server_timestamp = get_timestamp();
-        if (server_timestamp as i128 - client_timestamp as i128).abs()
-            > SIGNATURE_EXPIRATION_SECONDS
-        {
-            println!("Client signature has expired");
+        if (server_timestamp as i128 - client_timestamp as i128).abs() > SIGNATURE_EXPIRATION_SECONDS {
+            eprintln!("Client signature has expired");
             return false;
         }
 
@@ -99,6 +94,8 @@ impl CertificateSigningService {
         }
     }
 }
+
+
 
 pub fn get_timestamp() -> u64 {
     use std::time::SystemTime;

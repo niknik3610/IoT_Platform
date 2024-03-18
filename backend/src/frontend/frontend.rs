@@ -10,7 +10,7 @@ use crate::{
     frontend_registration::registration_service::{
         frontend_registration_service_client::FrontendRegistrationServiceClient,
         ConnectedDevicesRequest, RegistrationRequest,
-    },
+    }, frontend_types::types::DeviceCapabilityType,
 };
 
 pub mod frontend_device_control;
@@ -127,6 +127,7 @@ async fn get_connected_devices(
     Ok(connected_devices)
 }
 
+//This code disgusts me :|
 async fn control_device(
     device_id: &String,
     registration_client: &mut FrontendRegistrationServiceClient<Channel>,
@@ -223,6 +224,7 @@ async fn control_device(
             println!("Please enter a valid input");
             continue;
         }
+
         if choice == quit_number {
             return Ok(());
         }
@@ -230,13 +232,50 @@ async fn control_device(
         chosen_capabillity = &device_to_control.capabilities[choice];
         break;
     }
+        
+    let value = if chosen_capabillity.r#type == DeviceCapabilityType::Slider as i32 {
+        let mut input_buffer = String::new();
 
+        let choice = loop {
+            println!("Enter a value between 0-100");
+            {
+                let stdin = std::io::stdin();
+                match stdin.read_line(&mut input_buffer) {
+                    Ok(_) => {}
+                    Err(_e) => {
+                        println!("Please enter a valid input");
+                        continue;
+                    }
+                }
+            }
+            input_buffer.pop();
+            let choice = match input_buffer.parse::<usize>() {
+                Ok(r) => r,
+                Err(_e) => {
+                    println!("Please enter a valid input");
+                    continue;
+                }
+            };
+            //choice cannot be < 0 bc it is usize
+            if  choice > 100 {
+                println!("Please enter a valid input");
+                continue;
+            }
+            break choice;
+        };
+
+        Some(choice as f32)
+    } else {
+        None
+    };
+    
     println!("Making request....");
     let result = control_client
         .control_device(DeviceControlRequest {
             device_uuid: device_to_control.device_uuid.clone(),
             capability: chosen_capabillity.capability.clone(),
             timestamp: get_timestamp(),
+            value
         })
         .await;
 
