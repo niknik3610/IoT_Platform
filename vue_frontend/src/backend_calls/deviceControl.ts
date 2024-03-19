@@ -5,19 +5,19 @@ import { errAsync, okAsync, type Result } from "neverthrow";
 export async function controlDevice(
     to_control_uuid: string,
     capability_to_control: string,
-    value: number | null
+    value: number | null,
 ): Promise<Result<frontend.devicecontrol.DeviceControlResponse, Error>> {
     const jsonRequest = frontend.devicecontrol.DeviceControlRequest.create({
         device_uuid: to_control_uuid,
         capability: capability_to_control,
         timestamp: Date.now(),
-        value: value
+        value: value,
     }).toJSON();
 
     //javascript is such a funny language, serde will throw an error if i dont do this
-    jsonRequest.timestamp = Number(jsonRequest.timestamp)
+    jsonRequest.timestamp = Number(jsonRequest.timestamp);
     if (value !== null) {
-        jsonRequest.value = Number(jsonRequest.value)
+        jsonRequest.value = Number(jsonRequest.value);
     }
 
     const response = await fetch(API_DEVICE_CONTROL_ADDRESS, {

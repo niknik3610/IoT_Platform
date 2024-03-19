@@ -1,8 +1,8 @@
 <script lang="ts">
-    class ActiveCapabilities {
-        buttons: frontend.types.DeviceCapabilityStatus[] = []
-        sliders: frontend.types.DeviceCapabilityStatus[] = []
-    }
+class ActiveCapabilities {
+    buttons: frontend.types.DeviceCapabilityStatus[] = [];
+    sliders: frontend.types.DeviceCapabilityStatus[] = [];
+}
 </script>
 
 <script setup lang="ts">
@@ -19,24 +19,28 @@ const props = defineProps({
 
 const activeCapabilities = ref(new ActiveCapabilities());
 const deviceName = ref<String>("");
-const capabilities = ref<Array<frontend.types.DeviceCapabilityStatus>>([])
+const capabilities = ref<Array<frontend.types.DeviceCapabilityStatus>>([]);
 const deviceUuid = ref<String>("");
 
 const capabilitiesValueMap = ref<Map<String, number>>(new Map());
 
 onMounted(async () => {
-    deviceName.value =  props.deviceInfo.device_name
-    capabilities.value =  props.deviceInfo.capabilities
-    deviceUuid.value =  props.deviceInfo.device_uuid
+    deviceName.value = props.deviceInfo.device_name;
+    capabilities.value = props.deviceInfo.capabilities;
+    deviceUuid.value = props.deviceInfo.device_uuid;
 
     activeCapabilities.value = await calculateActiveCapabilities(
         capabilities.value,
     );
 
-    watch(() => props.deviceInfo, async (newDeviceInfo) => {
-        const newCapabilities = newDeviceInfo.capabilities;
-        activeCapabilities.value = await calculateActiveCapabilities(newCapabilities);
-    });
+    watch(
+        () => props.deviceInfo,
+        async (newDeviceInfo) => {
+            const newCapabilities = newDeviceInfo.capabilities;
+            activeCapabilities.value =
+                await calculateActiveCapabilities(newCapabilities);
+        },
+    );
 });
 
 async function calculateActiveCapabilities(
@@ -47,27 +51,32 @@ async function calculateActiveCapabilities(
             return capability;
         }
     });
-    
-    let toReturn = new ActiveCapabilities(); 
-    
+
+    let toReturn = new ActiveCapabilities();
+
     for (const capability of activeCapability) {
-        switch (capability.type)  {
+        switch (capability.type) {
             case frontend.types.DeviceCapabilityType.BUTTON:
                 toReturn.buttons.push(capability);
                 break;
             case frontend.types.DeviceCapabilityType.SLIDER:
                 toReturn.sliders.push(capability);
-                let capabilityValue = capabilitiesValueMap.value.get(capability.capability);
+                let capabilityValue = capabilitiesValueMap.value.get(
+                    capability.capability,
+                );
                 if (capabilityValue === null) {
                     capabilityValue = 50;
-                    capabilitiesValueMap.value.set(capability.capability, capabilityValue);
+                    capabilitiesValueMap.value.set(
+                        capability.capability,
+                        capabilityValue,
+                    );
                 }
 
-                capability.value = capabilityValue
+                capability.value = capabilityValue;
 
                 break;
             default:
-                console.error("Unknown Capability type " + capability.type)
+                console.error("Unknown Capability type " + capability.type);
         }
     }
 
@@ -75,7 +84,11 @@ async function calculateActiveCapabilities(
 }
 
 async function activateCapability(capability: DeviceCapabilityStatus) {
-    let result = await controlDevice(deviceUuid.value, capability.capability, capabilitiesValueMap.value[capability.capability]);
+    let result = await controlDevice(
+        deviceUuid.value,
+        capability.capability,
+        capabilitiesValueMap.value[capability.capability],
+    );
     if (result.isOk()) {
         console.log(`${capability.capability} activated succesfully`);
     } else if (result.isErr()) {
@@ -94,7 +107,10 @@ async function activateCapability(capability: DeviceCapabilityStatus) {
             v-bind:key="capability.capability"
             class="button-container"
         >
-            <button class="capability-button" @click="activateCapability(capability)">
+            <button
+                class="capability-button"
+                @click="activateCapability(capability)"
+            >
                 <p style="color: black">{{ capability.capability }}</p>
             </button>
         </div>
@@ -103,13 +119,26 @@ async function activateCapability(capability: DeviceCapabilityStatus) {
             v-bind:key="capability.capability"
             class="slider-container"
         >
-            <p style="color: black; text-align: center; padding-bottom: 3px;">{{ capability.capability }} Slider</p>
-            <div style="display: flex;">
-                <input type="range" min="1" max="100" value="50" class="slider" v-model="capabilitiesValueMap[capability.capability]">
-                <button style="margin-left: 5px;" @click="activateCapability(capability)">Submit</button>
+            <p style="color: black; text-align: center; padding-bottom: 3px">
+                {{ capability.capability }} Slider
+            </p>
+            <div style="display: flex">
+                <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    value="50"
+                    class="slider"
+                    v-model="capabilitiesValueMap[capability.capability]"
+                />
+                <button
+                    style="margin-left: 5px"
+                    @click="activateCapability(capability)"
+                >
+                    Submit
+                </button>
             </div>
         </div>
-
     </div>
 </template>
 
@@ -150,11 +179,11 @@ button {
     display: inline-block;
     font-size: 16px;
 
-    border: 4px solid #00BD7E;
+    border: 4px solid #00bd7e;
     border-radius: 10px;
 }
-button:active { 
-    transform: scale(0.95); 
+button:active {
+    transform: scale(0.95);
 }
 .slider-container {
     text-align: center;
@@ -167,7 +196,7 @@ button:active {
     justify-content: center;
     padding-bottom: 15px;
 
-    border: 4px solid #00BD7E;
+    border: 4px solid #00bd7e;
     border-radius: 10px;
     background-color: white;
     padding: 5px;
