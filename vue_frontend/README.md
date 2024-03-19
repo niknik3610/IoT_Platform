@@ -6,7 +6,7 @@ This is the web frontend for the smart home system, built in [Vue](https://vuejs
 
 To run the web-frontend you will need to have the newest version of NPM (Node Package Manager) installed. If you need help doing that, follow the [documentation](https://nodejs.org/en/download/package-manager).
 
-Once you have installed node, you can run the serve_web_frontend.sh script (TODO). Before you are able to do this, you will need to give it execution rights using:
+Once you have installed node, you can run the serve_frontend.sh script. Before you are able to do this, you will need to give it execution rights using:
 
 ```
 chmod +x serve_frontend.sh
