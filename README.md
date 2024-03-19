@@ -6,7 +6,7 @@ It focuses on:
 - Easy access to all internal systems
 - An easy way to setup new custom devices
 
-Please view the introduction (needs hyperlink) and example device (needs hyperlink) to get started
+Please view the *building and running* section and [example device](https://github.com/niknik3610/Example-Iot-Device) to get started
 
 ## Building and Running
 - The Rust compiler will be required to build and run the server. This should be installed using [Rustup](https://rustup.rs/).
