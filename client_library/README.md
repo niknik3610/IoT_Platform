@@ -22,4 +22,4 @@ To run the client library you will need to set the IP of your server. How you ge
 **Remember, the server IP needs to be prefixed with "HTTP://", otherwise it will not work**
 
 ### Notes
-- At the moment you will need to have the protobuf compiler installed (instructions can be found [here](https://grpc.io/docs/protoc-installation/)), I will try to get rid of this dependency in the future
+- At the moment you will need to have the protobuf compiler installed (instructions can be found [here](https://grpc.io/docs/protoc-installation/)).
