@@ -22,6 +22,8 @@ const deviceName = ref<String>("");
 const capabilities = ref<Array<frontend.types.DeviceCapabilityStatus>>([])
 const deviceUuid = ref<String>("");
 
+const capabilitiesValueMap = ref<Map<String, number>>(new Map());
+
 onMounted(async () => {
     deviceName.value =  props.deviceInfo.device_name
     capabilities.value =  props.deviceInfo.capabilities
@@ -55,9 +57,13 @@ async function calculateActiveCapabilities(
                 break;
             case frontend.types.DeviceCapabilityType.SLIDER:
                 toReturn.sliders.push(capability);
-                if (capability.value === null) {
-                    capability.value = 50;
+                let capabilityValue = capabilitiesValueMap.value.get(capability.capability);
+                if (capabilityValue === null) {
+                    capabilityValue = 50;
+                    capabilitiesValueMap.value.set(capability.capability, capabilityValue);
                 }
+
+                capability.value = capabilityValue
 
                 break;
             default:
@@ -69,8 +75,7 @@ async function calculateActiveCapabilities(
 }
 
 async function activateCapability(capability: DeviceCapabilityStatus) {
-    console.log(deviceUuid.value)
-    let result = await controlDevice(deviceUuid.value, capability.capability, capability.value);
+    let result = await controlDevice(deviceUuid.value, capability.capability, capabilitiesValueMap.value[capability.capability]);
     if (result.isOk()) {
         console.log(`${capability.capability} activated succesfully`);
     } else if (result.isErr()) {
@@ -100,7 +105,7 @@ async function activateCapability(capability: DeviceCapabilityStatus) {
         >
             <p style="color: black; text-align: center; padding-bottom: 3px;">{{ capability.capability }} Slider</p>
             <div style="display: flex;">
-                <input type="range" min="1" max="100" value="50" class="slider" v-model="capability.value">
+                <input type="range" min="1" max="100" value="50" class="slider" v-model="capabilitiesValueMap[capability.capability]">
                 <button style="margin-left: 5px;" @click="activateCapability(capability)">Submit</button>
             </div>
         </div>
