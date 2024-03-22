@@ -200,5 +200,10 @@ button:active {
     border-radius: 10px;
     background-color: white;
     padding: 5px;
+
+    input[type='range']{ 
+        accent-color: #00BD7E; 
+        background-color: white;
+    }
 }
 </style>
